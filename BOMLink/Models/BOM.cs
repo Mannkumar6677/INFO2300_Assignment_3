@@ -1,0 +1,20 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BOMLink.Models {
+    public class BOM {
+        #region Properties
+        public int Id { get; set; }
+        public int JobId { get; set; }
+        public Job Job { get; set; }
+        public DateTime Date { get; set; }
+
+        [Required(ErrorMessage = "Please enter a description.")]
+        public string Description { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
+
+        // Navigation properties for BOMItems
+        public ICollection<BOMItem> BOMItems { get; set; } = new List<BOMItem>();
+        #endregion
+    }
+}
