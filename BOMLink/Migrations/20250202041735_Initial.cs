@@ -14,7 +14,7 @@ namespace BOMLink.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Customer",
+                name: "Customers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -29,11 +29,11 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Customer", x => x.Id);
+                    table.PrimaryKey("PK_Customers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Manufacturer",
+                name: "Manufacturers",
                 columns: table => new
                 {
                     ManufacturerId = table.Column<int>(type: "int", nullable: false)
@@ -42,11 +42,11 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Manufacturer", x => x.ManufacturerId);
+                    table.PrimaryKey("PK_Manufacturers", x => x.ManufacturerId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Role",
+                name: "Roles",
                 columns: table => new
                 {
                     RoleId = table.Column<int>(type: "int", nullable: false)
@@ -55,7 +55,7 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Role", x => x.RoleId);
+                    table.PrimaryKey("PK_Roles", x => x.RoleId);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,7 +72,7 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Supplier",
+                name: "Suppliers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -87,11 +87,11 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Supplier", x => x.Id);
+                    table.PrimaryKey("PK_Suppliers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Part",
+                name: "Parts",
                 columns: table => new
                 {
                     PartNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -103,34 +103,34 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Part", x => x.PartNumber);
+                    table.PrimaryKey("PK_Parts", x => x.PartNumber);
                     table.ForeignKey(
-                        name: "FK_Part_Manufacturer_ManufacturerId",
+                        name: "FK_Parts_Manufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
-                        principalTable: "Manufacturer",
+                        principalTable: "Manufacturers",
                         principalColumn: "ManufacturerId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "Users",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HashedPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.UserId);
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_User_Role_RoleId",
+                        name: "FK_Users_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Role",
+                        principalTable: "Roles",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -148,21 +148,21 @@ namespace BOMLink.Migrations
                 {
                     table.PrimaryKey("PK_SupplierManufacturer", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SupplierManufacturer_Manufacturer_ManufacturerId",
+                        name: "FK_SupplierManufacturer_Manufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
-                        principalTable: "Manufacturer",
+                        principalTable: "Manufacturers",
                         principalColumn: "ManufacturerId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SupplierManufacturer_Supplier_SupplierId",
+                        name: "FK_SupplierManufacturer_Suppliers_SupplierId",
                         column: x => x.SupplierId,
-                        principalTable: "Supplier",
+                        principalTable: "Suppliers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Job",
+                name: "Jobs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -177,29 +177,29 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Job", x => x.Id);
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Job_Customer_CustomerId",
+                        name: "FK_Jobs_Customers_CustomerId",
                         column: x => x.CustomerId,
-                        principalTable: "Customer",
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Job_Status_StatusId",
+                        name: "FK_Jobs_Status_StatusId",
                         column: x => x.StatusId,
                         principalTable: "Status",
                         principalColumn: "StatusId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Job_User_UserId",
+                        name: "FK_Jobs_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RFQ",
+                name: "RFQs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -212,29 +212,29 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RFQ", x => x.Id);
+                    table.PrimaryKey("PK_RFQs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RFQ_Status_StatusId",
+                        name: "FK_RFQs_Status_StatusId",
                         column: x => x.StatusId,
                         principalTable: "Status",
                         principalColumn: "StatusId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_RFQ_Supplier_SupplierId",
+                        name: "FK_RFQs_Suppliers_SupplierId",
                         column: x => x.SupplierId,
-                        principalTable: "Supplier",
+                        principalTable: "Suppliers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RFQ_User_UserId",
+                        name: "FK_RFQs_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BOM",
+                name: "BOMs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -246,23 +246,23 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BOM", x => x.Id);
+                    table.PrimaryKey("PK_BOMs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BOM_Job_JobId",
+                        name: "FK_BOMs_Jobs_JobId",
                         column: x => x.JobId,
-                        principalTable: "Job",
+                        principalTable: "Jobs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BOM_User_UserId",
+                        name: "FK_BOMs_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PO",
+                name: "POs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -274,29 +274,29 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PO", x => x.Id);
+                    table.PrimaryKey("PK_POs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PO_RFQ_RFQId",
+                        name: "FK_POs_RFQs_RFQId",
                         column: x => x.RFQId,
-                        principalTable: "RFQ",
+                        principalTable: "RFQs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PO_Status_StatusId",
+                        name: "FK_POs_Status_StatusId",
                         column: x => x.StatusId,
                         principalTable: "Status",
                         principalColumn: "StatusId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PO_User_UserId",
+                        name: "FK_POs_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
+                        principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RFQItem",
+                name: "RFQItems",
                 columns: table => new
                 {
                     RFQItemId = table.Column<int>(type: "int", nullable: false)
@@ -310,23 +310,23 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RFQItem", x => x.RFQItemId);
+                    table.PrimaryKey("PK_RFQItems", x => x.RFQItemId);
                     table.ForeignKey(
-                        name: "FK_RFQItem_Part_PartNumber",
+                        name: "FK_RFQItems_Parts_PartNumber",
                         column: x => x.PartNumber,
-                        principalTable: "Part",
+                        principalTable: "Parts",
                         principalColumn: "PartNumber",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RFQItem_RFQ_RFQId",
+                        name: "FK_RFQItems_RFQs_RFQId",
                         column: x => x.RFQId,
-                        principalTable: "RFQ",
+                        principalTable: "RFQs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BOMItem",
+                name: "BOMItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -338,23 +338,23 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BOMItem", x => x.Id);
+                    table.PrimaryKey("PK_BOMItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BOMItem_BOM_BOMId",
+                        name: "FK_BOMItems_BOMs_BOMId",
                         column: x => x.BOMId,
-                        principalTable: "BOM",
+                        principalTable: "BOMs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BOMItem_Part_PartNumber",
+                        name: "FK_BOMItems_Parts_PartNumber",
                         column: x => x.PartNumber,
-                        principalTable: "Part",
+                        principalTable: "Parts",
                         principalColumn: "PartNumber",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "POItem",
+                name: "POItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -368,21 +368,21 @@ namespace BOMLink.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_POItem", x => x.Id);
+                    table.PrimaryKey("PK_POItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_POItem_PO_POId",
+                        name: "FK_POItems_POs_POId",
                         column: x => x.POId,
-                        principalTable: "PO",
+                        principalTable: "POs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_POItem_RFQItem_RFQId",
+                        name: "FK_POItems_RFQItems_RFQId",
                         column: x => x.RFQId,
-                        principalTable: "RFQItem",
+                        principalTable: "RFQItems",
                         principalColumn: "RFQItemId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_POItem_Status_StatusId",
+                        name: "FK_POItems_Status_StatusId",
                         column: x => x.StatusId,
                         principalTable: "Status",
                         principalColumn: "StatusId",
@@ -390,7 +390,7 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Manufacturer",
+                table: "Manufacturers",
                 columns: new[] { "ManufacturerId", "Name" },
                 values: new object[,]
                 {
@@ -400,7 +400,7 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Role",
+                table: "Roles",
                 columns: new[] { "RoleId", "Name" },
                 values: new object[,]
                 {
@@ -419,7 +419,7 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Supplier",
+                table: "Suppliers",
                 columns: new[] { "Id", "Address", "City", "ContactEmail", "ContactName", "ContactPhone", "Name", "Province" },
                 values: new object[,]
                 {
@@ -429,108 +429,108 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "User",
-                columns: new[] { "UserId", "FirstName", "LastName", "Password", "RoleId", "Username" },
+                table: "Users",
+                columns: new[] { "UserId", "FirstName", "HashedPassword", "LastName", "RoleId", "Username" },
                 values: new object[,]
                 {
-                    { 1, "Admin", "Admin", "admin123!A", 1, "admin" },
-                    { 2, "User", "User", "user123!U", 2, "user" }
+                    { 1, "Admin", "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==", "Admin", 1, "admin" },
+                    { 2, "User", "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==", "User", 2, "JDS" }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BOM_JobId",
-                table: "BOM",
-                column: "JobId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BOM_UserId",
-                table: "BOM",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BOMItem_BOMId",
-                table: "BOMItem",
+                name: "IX_BOMItems_BOMId",
+                table: "BOMItems",
                 column: "BOMId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BOMItem_PartNumber",
-                table: "BOMItem",
+                name: "IX_BOMItems_PartNumber",
+                table: "BOMItems",
                 column: "PartNumber");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Job_CustomerId",
-                table: "Job",
+                name: "IX_BOMs_JobId",
+                table: "BOMs",
+                column: "JobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BOMs_UserId",
+                table: "BOMs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_CustomerId",
+                table: "Jobs",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Job_StatusId",
-                table: "Job",
+                name: "IX_Jobs_StatusId",
+                table: "Jobs",
                 column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Job_UserId",
-                table: "Job",
+                name: "IX_Jobs_UserId",
+                table: "Jobs",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Part_ManufacturerId",
-                table: "Part",
+                name: "IX_Parts_ManufacturerId",
+                table: "Parts",
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PO_RFQId",
-                table: "PO",
-                column: "RFQId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PO_StatusId",
-                table: "PO",
-                column: "StatusId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PO_UserId",
-                table: "PO",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_POItem_POId",
-                table: "POItem",
+                name: "IX_POItems_POId",
+                table: "POItems",
                 column: "POId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_POItem_RFQId",
-                table: "POItem",
+                name: "IX_POItems_RFQId",
+                table: "POItems",
                 column: "RFQId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_POItem_StatusId",
-                table: "POItem",
+                name: "IX_POItems_StatusId",
+                table: "POItems",
                 column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RFQ_StatusId",
-                table: "RFQ",
+                name: "IX_POs_RFQId",
+                table: "POs",
+                column: "RFQId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_POs_StatusId",
+                table: "POs",
                 column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RFQ_SupplierId",
-                table: "RFQ",
-                column: "SupplierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RFQ_UserId",
-                table: "RFQ",
+                name: "IX_POs_UserId",
+                table: "POs",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RFQItem_PartNumber",
-                table: "RFQItem",
+                name: "IX_RFQItems_PartNumber",
+                table: "RFQItems",
                 column: "PartNumber");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RFQItem_RFQId",
-                table: "RFQItem",
+                name: "IX_RFQItems_RFQId",
+                table: "RFQItems",
                 column: "RFQId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RFQs_StatusId",
+                table: "RFQs",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RFQs_SupplierId",
+                table: "RFQs",
+                column: "SupplierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RFQs_UserId",
+                table: "RFQs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupplierManufacturer_ManufacturerId",
@@ -543,8 +543,8 @@ namespace BOMLink.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_RoleId",
-                table: "User",
+                name: "IX_Users_RoleId",
+                table: "Users",
                 column: "RoleId");
         }
 
@@ -552,49 +552,49 @@ namespace BOMLink.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BOMItem");
+                name: "BOMItems");
 
             migrationBuilder.DropTable(
-                name: "POItem");
+                name: "POItems");
 
             migrationBuilder.DropTable(
                 name: "SupplierManufacturer");
 
             migrationBuilder.DropTable(
-                name: "BOM");
+                name: "BOMs");
 
             migrationBuilder.DropTable(
-                name: "PO");
+                name: "POs");
 
             migrationBuilder.DropTable(
-                name: "RFQItem");
+                name: "RFQItems");
 
             migrationBuilder.DropTable(
-                name: "Job");
+                name: "Jobs");
 
             migrationBuilder.DropTable(
-                name: "Part");
+                name: "Parts");
 
             migrationBuilder.DropTable(
-                name: "RFQ");
+                name: "RFQs");
 
             migrationBuilder.DropTable(
-                name: "Customer");
+                name: "Customers");
 
             migrationBuilder.DropTable(
-                name: "Manufacturer");
+                name: "Manufacturers");
 
             migrationBuilder.DropTable(
                 name: "Status");
 
             migrationBuilder.DropTable(
-                name: "Supplier");
+                name: "Suppliers");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "Roles");
         }
     }
 }

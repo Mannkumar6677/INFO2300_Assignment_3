@@ -1,40 +1,44 @@
 ﻿using BOMLink.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BOMLink.Data {
     public class BOMLinkContext : DbContext {
         public BOMLinkContext(DbContextOptions<BOMLinkContext> options) : base(options) { }
 
-        public DbSet<BOM> BOM { get; set; }
-        public DbSet<BOMItem> BOMItem { get; set; }
-        public DbSet<Customer> Customer { get; set; }
-        public DbSet<Job> Job { get; set; }
-        public DbSet<Manufacturer> Manufacturer { get; set; }
-        public DbSet<Part> Part { get; set; }
-        public DbSet<PO> PO { get; set; }
-        public DbSet<POItem> POItem { get; set; }
-        public DbSet<RFQ> RFQ { get; set; }
-        public DbSet<RFQItem> RFQItem { get; set; }
-        public DbSet<Role> Role { get; set; }
+        public DbSet<BOM> BOMs { get; set; }
+        public DbSet<BOMItem> BOMItems { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Job> Jobs { get; set; }
+        public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<Part> Parts { get; set; }
+        public DbSet<PO> POs { get; set; }
+        public DbSet<POItem> POItems { get; set; }
+        public DbSet<RFQ> RFQs { get; set; }
+        public DbSet<RFQItem> RFQItems { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Status> Status { get; set; }
-        public DbSet<Supplier> Supplier { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierManufacturer> SupplierManufacturer { get; set; }
+        public DbSet<User> Users { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            var passwordHasher = new PasswordHasher<User>();
+
             modelBuilder.Entity<User>().HasData(
                 new User {
                     UserId = 1,
                     Username = "admin",
-                    Password = "admin123!A",
+                    HashedPassword = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
                     FirstName = "Admin",
                     LastName = "Admin",
                     RoleId = 1
                 },
                 new User {
                     UserId = 2,
-                    Username = "user",
-                    Password = "user123!U",
+                    Username = "JDS",
+                    HashedPassword = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
                     FirstName = "User",
                     LastName = "User",
                     RoleId = 2

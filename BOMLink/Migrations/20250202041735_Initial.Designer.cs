@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250127024346_Initial")]
+    [Migration("20250202041735_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -52,7 +52,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BOM");
+                    b.ToTable("BOMs");
                 });
 
             modelBuilder.Entity("BOMLink.Models.BOMItem", b =>
@@ -82,7 +82,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("PartNumber");
 
-                    b.ToTable("BOMItem");
+                    b.ToTable("BOMItems");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Customer", b =>
@@ -123,7 +123,7 @@ namespace BOMLink.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Job", b =>
@@ -166,7 +166,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Job");
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Manufacturer", b =>
@@ -183,7 +183,7 @@ namespace BOMLink.Migrations
 
                     b.HasKey("ManufacturerId");
 
-                    b.ToTable("Manufacturer");
+                    b.ToTable("Manufacturers");
 
                     b.HasData(
                         new
@@ -231,7 +231,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PO");
+                    b.ToTable("POs");
                 });
 
             modelBuilder.Entity("BOMLink.Models.POItem", b =>
@@ -268,7 +268,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("POItem");
+                    b.ToTable("POItems");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Part", b =>
@@ -299,7 +299,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("ManufacturerId");
 
-                    b.ToTable("Part");
+                    b.ToTable("Parts");
                 });
 
             modelBuilder.Entity("BOMLink.Models.RFQ", b =>
@@ -333,7 +333,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RFQ");
+                    b.ToTable("RFQs");
                 });
 
             modelBuilder.Entity("BOMLink.Models.RFQItem", b =>
@@ -370,7 +370,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("RFQId");
 
-                    b.ToTable("RFQItem");
+                    b.ToTable("RFQItems");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Role", b =>
@@ -387,7 +387,7 @@ namespace BOMLink.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Role");
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -469,7 +469,7 @@ namespace BOMLink.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Supplier");
+                    b.ToTable("Suppliers");
 
                     b.HasData(
                         new
@@ -527,11 +527,11 @@ namespace BOMLink.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LastName")
+                    b.Property<string>("HashedPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -546,15 +546,15 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
                             UserId = 1,
                             FirstName = "Admin",
+                            HashedPassword = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
                             LastName = "Admin",
-                            Password = "admin123!A",
                             RoleId = 1,
                             Username = "admin"
                         },
@@ -562,10 +562,10 @@ namespace BOMLink.Migrations
                         {
                             UserId = 2,
                             FirstName = "User",
+                            HashedPassword = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
                             LastName = "User",
-                            Password = "user123!U",
                             RoleId = 2,
-                            Username = "user"
+                            Username = "JDS"
                         });
                 });
 
