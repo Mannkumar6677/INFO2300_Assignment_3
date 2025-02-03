@@ -19,7 +19,6 @@ namespace BOMLink.Controllers {
             var username = User.Identity.Name;
             var user = _context.Users.FirstOrDefault(u => u.Username == username);
 
-            @ViewBag.UserRole = user?.Role;
             return RedirectToAction("Index", "Dashboard");
         }
     }

@@ -19,13 +19,14 @@ namespace BOMLink.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Province = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactPhone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CustomerCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContactPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ContactEmail = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -38,7 +39,7 @@ namespace BOMLink.Migrations
                 {
                     ManufacturerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,13 +78,14 @@ namespace BOMLink.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContactPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContactEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SupplierCode = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -167,12 +169,12 @@ namespace BOMLink.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Number = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Number = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -184,12 +186,6 @@ namespace BOMLink.Migrations
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Jobs_Status_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Status",
-                        principalColumn: "StatusId",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Jobs_Users_UserId",
                         column: x => x.UserId,
@@ -390,13 +386,23 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Customers",
+                columns: new[] { "Id", "Address", "City", "ContactEmail", "ContactName", "ContactPhone", "CustomerCode", "Name", "Province" },
+                values: new object[,]
+                {
+                    { 1, null, null, null, null, null, "ABCCO", "ABC Company", null },
+                    { 2, null, null, null, null, null, "XYZCO", "XYZ Company", null },
+                    { 3, null, null, null, null, null, "123CO", "123 Company", null }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Manufacturers",
                 columns: new[] { "ManufacturerId", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Acme" },
-                    { 2, "Beta" },
-                    { 3, "Gamma" }
+                    { 1, "Schneider" },
+                    { 2, "Phoenix Contact" },
+                    { 3, "Siemens" }
                 });
 
             migrationBuilder.InsertData(
@@ -420,12 +426,12 @@ namespace BOMLink.Migrations
 
             migrationBuilder.InsertData(
                 table: "Suppliers",
-                columns: new[] { "Id", "Address", "City", "ContactEmail", "ContactName", "ContactPhone", "Name", "Province" },
+                columns: new[] { "Id", "Address", "City", "ContactEmail", "ContactName", "ContactPhone", "Name", "Province", "SupplierCode" },
                 values: new object[,]
                 {
-                    { 1, null, null, "test@gmail.com", null, null, "Supplier 1", null },
-                    { 2, null, null, "test@gmail.com", null, null, "Supplier 2", null },
-                    { 3, null, null, "test@gmail.com", null, null, "Supplier 3", null }
+                    { 1, null, null, "test@gmail.com", null, null, "Graybar", null, "GRAELE" },
+                    { 2, null, null, "test@gmail.com", null, null, "House of Electric", null, "HOUELE" },
+                    { 3, null, null, "test@gmail.com", null, null, "Hammond", null, "HAMMND" }
                 });
 
             migrationBuilder.InsertData(
@@ -435,6 +441,16 @@ namespace BOMLink.Migrations
                 {
                     { 1, "Admin", "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==", "Admin", 1, "admin" },
                     { 2, "User", "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==", "User", 2, "JDS" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Jobs",
+                columns: new[] { "Id", "ContactName", "CustomerId", "Description", "Number", "StartDate", "Status", "UserId" },
+                values: new object[,]
+                {
+                    { 1, "John Doe", 1, "Job 1", "J0001", new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 2 },
+                    { 2, "Jane Doe", 2, "Job 2", "J0002", new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 2 },
+                    { 3, "Jack Doe", 3, "Job 3", "J0003", new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3, 2 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -458,19 +474,38 @@ namespace BOMLink.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Customers_CustomerCode",
+                table: "Customers",
+                column: "CustomerCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Name",
+                table: "Customers",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Jobs_CustomerId",
                 table: "Jobs",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Jobs_StatusId",
+                name: "IX_Jobs_Number",
                 table: "Jobs",
-                column: "StatusId");
+                column: "Number",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jobs_UserId",
                 table: "Jobs",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Manufacturers_Name",
+                table: "Manufacturers",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Parts_ManufacturerId",
@@ -541,6 +576,18 @@ namespace BOMLink.Migrations
                 name: "IX_SupplierManufacturer_SupplierId",
                 table: "SupplierManufacturer",
                 column: "SupplierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Suppliers_Name",
+                table: "Suppliers",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Suppliers_SupplierCode",
+                table: "Suppliers",
+                column: "SupplierCode",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",

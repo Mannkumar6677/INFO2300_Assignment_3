@@ -22,9 +22,80 @@ namespace BOMLink.Data {
         public DbSet<SupplierManufacturer> SupplierManufacturer { get; set; }
         public DbSet<User> Users { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            var passwordHasher = new PasswordHasher<User>();
+            //// ✅ Explicitly define primary key for IdentityUserRole<string>
+            //modelBuilder.Entity<IdentityUserRole<string>>()
+            //    .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            //modelBuilder.Entity<IdentityUserClaim<string>>()
+            //    .HasKey(uc => uc.Id);
+
+            //modelBuilder.Entity<IdentityUserLogin<string>>()
+            //    .HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
+
+            //modelBuilder.Entity<IdentityRoleClaim<string>>()
+            //    .HasKey(rc => rc.Id);
+
+            //modelBuilder.Entity<IdentityUserToken<string>>()
+            //    .HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
+
+            //// Seed Roles First
+            //var adminRole = new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN" };
+            //var userRole = new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER" };
+
+            //modelBuilder.Entity<IdentityRole>().HasData(adminRole, userRole);
+
+            //var adminUser = new ApplicationUser {
+            //    Id = "1001", // IdentityUser uses string ID
+            //    UserName = "admin",
+            //    NormalizedUserName = "ADMIN",
+            //    Email = "admin@bomlink.com",
+            //    NormalizedEmail = "ADMIN@BOMLINK.COM",
+            //    FirstName = "Admin",
+            //    LastName = "User",
+            //    PasswordHash = "AQAAAAEAACcQAAAAEHnE9fMb0Et5ngudI8wg/Y9VWfcGiDT/COpFo6rNX7HGAgP3cWN5AZrw4F++0UrcDw=="
+            //};
+
+            //var normalUser = new ApplicationUser {
+            //    Id = "1002",
+            //    UserName = "JDS",
+            //    NormalizedUserName = "JDS",
+            //    Email = "user@bomlink.com",
+            //    NormalizedEmail = "USER@BOMLINK.COM",
+            //    FirstName = "JDS",
+            //    LastName = "User",
+            //    PasswordHash = "AQAAAAEAACcQAAAAEAgMAY1MlmEX4XTuJIo8de6PXc8A607hv3SPk4IVBzD6VsEX1y0MadveFphNH7FUYg=="
+            //};
+
+            //var adminUser = new ApplicationUser {
+            //    Id = "1001",
+            //    UserName = "admin",
+            //    NormalizedUserName = "ADMIN",
+            //    Email = "admin@bomlink.com",
+            //    NormalizedEmail = "ADMIN@BOMLINK.COM",
+            //    FirstName = "Admin",
+            //    LastName = "User"
+            //    // Remove PasswordHash from HasData(), set it manually at runtime
+            //};
+
+            //var normalUser = new ApplicationUser {
+            //    Id = "1002",
+            //    UserName = "JDS",
+            //    NormalizedUserName = "JDS",
+            //    Email = "user@bomlink.com",
+            //    NormalizedEmail = "USER@BOMLINK.COM",
+            //    FirstName = "JDS",
+            //    LastName = "User"
+            //    // Remove PasswordHash from HasData(), set it manually at runtime
+            //};
+
+            //modelBuilder.Entity<ApplicationUser>().HasData(adminUser, normalUser);
+
+            //// Assign Roles
+            //modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            //    new IdentityUserRole<string> { UserId = "1001", RoleId = "1" }, // Admin Role
+            //    new IdentityUserRole<string> { UserId = "1002", RoleId = "2" }  // User Role
+            //);
 
             modelBuilder.Entity<User>().HasData(
                 new User {
@@ -56,16 +127,54 @@ namespace BOMLink.Data {
                 new Status { StatusId = 3, Name = "Backorder" }
             );
 
+            // Job data
+            modelBuilder.Entity<Job>()
+                .HasIndex(m => m.Number)
+                .IsUnique();  // Ensure unique job numbers
+            modelBuilder.Entity<Job>()
+    .Property(j => j.StartDate)
+    .HasDefaultValueSql("GETUTCDATE()"); // Uses the database default UTC date
+            modelBuilder.Entity<Job>().HasData(
+    new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
+    new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
+    new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2 , StartDate = new DateTime(2021, 1, 1) }
+);
+
+
+            // Manufacturer data
+            modelBuilder.Entity<Manufacturer>()
+                .HasIndex(m => m.Name)
+                .IsUnique();  // Ensure unique manufacturer names
             modelBuilder.Entity<Manufacturer>().HasData(
-                new Manufacturer { ManufacturerId = 1, Name = "Acme" },
-                new Manufacturer { ManufacturerId = 2, Name = "Beta" },
-                new Manufacturer { ManufacturerId = 3, Name = "Gamma" }
+                new Manufacturer { ManufacturerId = 1, Name = "Schneider" },
+                new Manufacturer { ManufacturerId = 2, Name = "Phoenix Contact" },
+                new Manufacturer { ManufacturerId = 3, Name = "Siemens" }
             );
 
+            // Supplier data
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(m => m.Name)
+                .IsUnique();  // Ensure unique supplier names
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(m => m.SupplierCode)
+                .IsUnique();  // Ensure unique supplier code
             modelBuilder.Entity<Supplier>().HasData(
-                new Supplier { Id = 1, Name = "Supplier 1", ContactEmail = "test@gmail.com" },
-                new Supplier { Id = 2, Name = "Supplier 2", ContactEmail = "test@gmail.com" },
-                new Supplier { Id = 3, Name = "Supplier 3", ContactEmail = "test@gmail.com" }
+                new Supplier { Id = 1, Name = "Graybar", ContactEmail = "test@gmail.com", SupplierCode = "GRAELE" },
+                new Supplier { Id = 2, Name = "House of Electric", ContactEmail = "test@gmail.com", SupplierCode = "HOUELE" },
+                new Supplier { Id = 3, Name = "Hammond", ContactEmail = "test@gmail.com", SupplierCode = "HAMMND" }
+            );
+
+            // Customer data
+            modelBuilder.Entity<Customer>()
+                .HasIndex(m => m.Name)
+                .IsUnique(); // Ensure unique customer names
+            modelBuilder.Entity<Customer>()
+                .HasIndex(m => m.CustomerCode)
+                .IsUnique(); // Ensure unique customer codes
+            modelBuilder.Entity<Customer>().HasData(
+                new Customer { Id = 1, Name = "ABC Company", CustomerCode = "ABCCO" },
+                new Customer { Id = 2, Name = "XYZ Company", CustomerCode = "XYZCO" },
+                new Customer { Id = 3, Name = "123 Company", CustomerCode = "123CO" }
             );
 
             modelBuilder.Entity<Part>()
@@ -89,16 +198,10 @@ namespace BOMLink.Data {
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Job>()
-                .HasOne(b => b.User)
-                .WithMany(u => u.Jobs)
-                .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Job>()
-                .HasOne(j => j.Status)
-                .WithMany()
-                .HasForeignKey(j => j.StatusId)
-                .OnDelete(DeleteBehavior.Restrict);
+                    .HasOne(j => j.User)
+                    .WithMany(u => u.Jobs)
+                    .HasForeignKey(j => j.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RFQ>()
                 .HasOne(b => b.User)

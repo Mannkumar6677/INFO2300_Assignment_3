@@ -5,12 +5,12 @@ namespace BOMLink.Models {
         #region Properties
         public int ManufacturerId { get; set; }
 
-        [Required(ErrorMessage = "Please enter a manufacturer name.")]
+        [Required(ErrorMessage = "Supplier name is required.")]
+        [StringLength(50, ErrorMessage = "Supplier name cannot exceed 50 characters.")]
         public string Name { get; set; }
 
-
         // Navigation properties for SupplierManufacturers
-        public ICollection<SupplierManufacturer> SupplierManufacturers { get; set; }
+        public ICollection<SupplierManufacturer> SupplierManufacturers { get; set; } = new List<SupplierManufacturer>();
         #endregion
     }
 }

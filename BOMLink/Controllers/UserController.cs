@@ -32,7 +32,7 @@ namespace BOMLink.Controllers {
                     // If rehash is needed, update the hash in the database
                     if (result == PasswordVerificationResult.SuccessRehashNeeded) {
                         user.HashedPassword = passwordHasher.HashPassword(user, password);
-                        _context.SaveChanges(); 
+                        _context.SaveChanges();
                     }
 
                     var claims = new List<Claim>

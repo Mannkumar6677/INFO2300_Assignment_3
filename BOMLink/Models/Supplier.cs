@@ -5,7 +5,7 @@ namespace BOMLink.Models {
         #region Properties
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Please enter a supplier name.")]
+        [Required(ErrorMessage = "Please enter an unique supplier name.")]
         public string Name { get; set; }
         public string? ContactName { get; set; }
         public string? ContactPhone { get; set; }
@@ -17,8 +17,11 @@ namespace BOMLink.Models {
         public string? City { get; set; }
         public string? Province { get; set; }
 
+        [Required(ErrorMessage = "Please enter an unique supplier code.")]
+        public string SupplierCode { get; set; }
+
         // Navigation properties for SupplierManufacturers
-        public ICollection<SupplierManufacturer> SupplierManufacturers { get; set; }
+        public ICollection<SupplierManufacturer> SupplierManufacturers { get; set; } = new List<SupplierManufacturer>();
         #endregion
     }
 }

@@ -84,10 +84,11 @@
 								<li class="nav-item dropdown mx-3">
 									<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Database</a>
 									<ul class="dropdown-menu">
-										<li><a class="dropdown-item" href="@Url.Action("Index", "Customer")">Customers</a></li>
-										<li><a class="dropdown-item" href="@Url.Action("Index", "Job")">Jobs</a></li>
-										<li><a class="dropdown-item" href="@Url.Action("Index", "Supplier")">Suppliers</a></li>
 										<li><a class="dropdown-item" href="@Url.Action("Index", "Part")">Parts</a></li>
+										<li><a class="dropdown-item" href="@Url.Action("Index", "Job")">Jobs</a></li>
+										<li><a class="dropdown-item" href="@Url.Action("Index", "Customer")">Customers</a></li>
+										<li><a class="dropdown-item" href="@Url.Action("Index", "Supplier")">Suppliers</a></li>
+										<li><a class="dropdown-item" href="@Url.Action("Index", "Manufacturer")">Manufacturers</a></li>
 										<li><a class="dropdown-item" href="@Url.Action("Index", "SupplierManufacturer")">Supplier/Manufacturer Mapping</a></li>
 									</ul>
 								</li>
@@ -126,6 +127,19 @@
 
 	<!-- Main Content -->
 	<main class="container mt-5 pt-5 flex-grow-1">
+		@if (TempData["Error"] != null)
+		{
+			<div id="tempMessage" class="alert alert-danger">@TempData["Error"]</div>
+		}
+		@if (TempData["Success"] != null)
+		{
+			<div id="tempMessage" class="alert alert-success">@TempData["Success"]</div>
+		}
+		@if (TempData["Info"] != null)
+		{
+			<div id="tempMessage" class="alert alert-warning">@TempData["Info"]</div>
+		}
+
 		@RenderBody()
 	</main>
 

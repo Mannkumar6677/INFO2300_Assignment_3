@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250202041735_Initial")]
+    [Migration("20250203051039_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -94,36 +94,60 @@ namespace BOMLink.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactEmail")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactPhone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Province")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerCode")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Customers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CustomerCode = "ABCCO",
+                            Name = "ABC Company"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CustomerCode = "XYZCO",
+                            Name = "XYZ Company"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CustomerCode = "123CO",
+                            Name = "123 Company"
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.Job", b =>
@@ -135,7 +159,6 @@ namespace BOMLink.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ContactName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CustomerId")
@@ -147,12 +170,14 @@ namespace BOMLink.Migrations
 
                     b.Property<string>("Number")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -162,11 +187,47 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("Number")
+                        .IsUnique();
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Jobs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ContactName = "John Doe",
+                            CustomerId = 1,
+                            Description = "Job 1",
+                            Number = "J0001",
+                            StartDate = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ContactName = "Jane Doe",
+                            CustomerId = 2,
+                            Description = "Job 2",
+                            Number = "J0002",
+                            StartDate = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 2,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ContactName = "Jack Doe",
+                            CustomerId = 3,
+                            Description = "Job 3",
+                            Number = "J0003",
+                            StartDate = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 3,
+                            UserId = 2
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.Manufacturer", b =>
@@ -179,9 +240,13 @@ namespace BOMLink.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("ManufacturerId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Manufacturers");
 
@@ -189,17 +254,17 @@ namespace BOMLink.Migrations
                         new
                         {
                             ManufacturerId = 1,
-                            Name = "Acme"
+                            Name = "Schneider"
                         },
                         new
                         {
                             ManufacturerId = 2,
-                            Name = "Beta"
+                            Name = "Phoenix Contact"
                         },
                         new
                         {
                             ManufacturerId = 3,
-                            Name = "Gamma"
+                            Name = "Siemens"
                         });
                 });
 
@@ -462,12 +527,22 @@ namespace BOMLink.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Province")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SupplierCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierCode")
+                        .IsUnique();
 
                     b.ToTable("Suppliers");
 
@@ -476,19 +551,22 @@ namespace BOMLink.Migrations
                         {
                             Id = 1,
                             ContactEmail = "test@gmail.com",
-                            Name = "Supplier 1"
+                            Name = "Graybar",
+                            SupplierCode = "GRAELE"
                         },
                         new
                         {
                             Id = 2,
                             ContactEmail = "test@gmail.com",
-                            Name = "Supplier 2"
+                            Name = "House of Electric",
+                            SupplierCode = "HOUELE"
                         },
                         new
                         {
                             Id = 3,
                             ContactEmail = "test@gmail.com",
-                            Name = "Supplier 3"
+                            Name = "Hammond",
+                            SupplierCode = "HAMMND"
                         });
                 });
 
@@ -615,12 +693,6 @@ namespace BOMLink.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BOMLink.Models.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("BOMLink.Models.User", "User")
                         .WithMany("Jobs")
                         .HasForeignKey("UserId")
@@ -628,8 +700,6 @@ namespace BOMLink.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Status");
 
                     b.Navigation("User");
                 });

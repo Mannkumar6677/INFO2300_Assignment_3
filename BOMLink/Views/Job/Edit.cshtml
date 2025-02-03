@@ -1,0 +1,51 @@
+﻿@model BOMLink.ViewModels.JobFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Job";
+}
+
+<h2>Edit Job</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label class="form-label">Job Number</label>
+        <input asp-for="Number" class="form-control" required />
+        <span asp-validation-for="Number" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <input asp-for="Description" class="form-control" required />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Customer</label>
+        <select asp-for="CustomerId" asp-items="@(new SelectList(Model.Customers, "Id", "Name"))" class="form-select">
+            <option value="">Select Customer</option>
+        </select>
+        <span asp-validation-for="CustomerId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Start Date</label>
+        <input asp-for="StartDate" type="date" class="form-control" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Contact Name</label>
+        <input asp-for="ContactName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<JobStatus>()" class="form-select"></select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-outline-primary">Save</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>
