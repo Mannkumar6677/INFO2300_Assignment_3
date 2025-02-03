@@ -5,7 +5,8 @@
 * Aline Sathler Delfino, 2025.01.26: Database.
 * Aline Sathler Delfino, 2025.02.01: Layout, Login page, hash password.
 * Aline Sathler Delfino, 2025.02.02: Dashboard, Navbar, Profile Bubble, Logout.
-* Alina Sathler Delfino, 2025.02.02: Manufacturer, Supplier, Customer, Job.
+* Aline Sathler Delfino, 2025.02.02: Manufacturer, Supplier, Customer, Job.
+* Aline Sathler Delfino, 2025.02.03: Job: Validation to avoid duplicate number, import/export.
 */
 
 using BOMLink.Data;

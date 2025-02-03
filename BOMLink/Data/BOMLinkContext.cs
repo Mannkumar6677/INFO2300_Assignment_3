@@ -132,13 +132,13 @@ namespace BOMLink.Data {
                 .HasIndex(m => m.Number)
                 .IsUnique();  // Ensure unique job numbers
             modelBuilder.Entity<Job>()
-    .Property(j => j.StartDate)
-    .HasDefaultValueSql("GETUTCDATE()"); // Uses the database default UTC date
-            modelBuilder.Entity<Job>().HasData(
-    new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
-    new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
-    new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2 , StartDate = new DateTime(2021, 1, 1) }
-);
+                .Property(j => j.StartDate)
+                .HasDefaultValueSql("GETUTCDATE()"); // Uses the database default UTC date
+                        modelBuilder.Entity<Job>().HasData(
+                new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
+                new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
+                new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2 , StartDate = new DateTime(2021, 1, 1) }
+            );
 
 
             // Manufacturer data

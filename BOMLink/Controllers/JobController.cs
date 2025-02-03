@@ -1,12 +1,18 @@
 ﻿using BOMLink.Data;
 using BOMLink.Models;
 using BOMLink.ViewModels;
+using CsvHelper.Configuration;
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BOMLink.Controllers {
     [Authorize]
@@ -18,12 +24,17 @@ namespace BOMLink.Controllers {
         }
 
         // GET: Job
-        public async Task<IActionResult> Index(string searchTerm, string sortBy, string sortOrder) {
+        public async Task<IActionResult> Index(string searchTerm, int? selectedCustomer, string sortBy, string sortOrder) {
             var jobs = _context.Jobs.Include(j => j.Customer).AsQueryable();
 
-            // Filtering by customer name
+            // Filtering by customer (if selected)
+            if (selectedCustomer.HasValue) {
+                jobs = jobs.Where(j => j.CustomerId == selectedCustomer.Value);
+            }
+
+            // Filtering by search term
             if (!string.IsNullOrEmpty(searchTerm)) {
-                jobs = jobs.Where(j => j.Customer.Name.Contains(searchTerm));
+                jobs = jobs.Where(j => j.Number.Contains(searchTerm) || j.Description.Contains(searchTerm) || j.Customer.Name.Contains(searchTerm));
             }
 
             // Sorting logic
@@ -31,12 +42,16 @@ namespace BOMLink.Controllers {
                 "customer" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.Customer.Name) : jobs.OrderBy(j => j.Customer.Name),
                 "status" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.Status) : jobs.OrderBy(j => j.Status),
                 "date" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.StartDate) : jobs.OrderBy(j => j.StartDate),
+                "number" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.Number) : jobs.OrderBy(j => j.Number),
                 _ => jobs.OrderBy(j => j.Number)
             };
 
+
             var viewModel = new JobViewModel {
                 Jobs = await jobs.ToListAsync(),
+                Customers = await _context.Customers.ToListAsync(), // Populate dropdown
                 SearchTerm = searchTerm,
+                SelectedCustomer = selectedCustomer?.ToString(), // Convert int? to string
                 SortBy = sortBy,
                 SortOrder = sortOrder
             };
@@ -58,6 +73,12 @@ namespace BOMLink.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(JobFormViewModel viewModel) {
+            if (_context.Jobs.Any(j => j.Number == viewModel.Number)) { 
+                TempData["Error"] = "Job number must be unique.";
+                viewModel.Customers = _context.Customers.ToList(); // Reload dropdown
+                return View(viewModel);
+            }
+
             if (!ModelState.IsValid) {
                 viewModel.Customers = _context.Customers.ToList(); // Reload dropdown
                 return View(viewModel);
@@ -104,6 +125,12 @@ namespace BOMLink.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(JobFormViewModel viewModel) {
+            if (_context.Jobs.Any(j => j.Number == viewModel.Number && j.Id != viewModel.Id)) {
+                TempData["Error"] = "Job number must be unique.";
+                viewModel.Customers = _context.Customers.ToList(); // Reload dropdown
+                return View(viewModel);
+            }
+
             if (!ModelState.IsValid) {
                 viewModel.Customers = _context.Customers.ToList(); // Reload dropdown
                 return View(viewModel);
@@ -143,6 +170,203 @@ namespace BOMLink.Controllers {
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Job/ExportToCSV
+        public IActionResult ExportToCSV() {
+            var jobs = _context.Jobs.Include(j => j.Customer).ToList();
+
+            var csvBuilder = new StringBuilder();
+            csvBuilder.AppendLine("JobId,Number,Description,Customer,StartDate,Status");
+
+            foreach (var job in jobs) {
+                csvBuilder.AppendLine($"{job.Id},{job.Number},{job.Description},{job.Customer?.Name},{job.StartDate:yyyy-MM-dd},{job.Status}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(csvBuilder.ToString()), "text/csv", "Jobs.csv");
+        }
+
+        // GET: Job/ExportToExcel
+        public IActionResult ExportToExcel() {
+            var jobs = _context.Jobs.Include(j => j.Customer).ToList();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using var package = new ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Jobs");
+
+            // Headers
+            worksheet.Cells[1, 1].Value = "JobId";
+            worksheet.Cells[1, 2].Value = "Number";
+            worksheet.Cells[1, 3].Value = "Description";
+            worksheet.Cells[1, 4].Value = "Customer";
+            worksheet.Cells[1, 5].Value = "StartDate";
+            worksheet.Cells[1, 6].Value = "Status";
+            worksheet.Cells[1, 7].Value = "ContactName";
+            
+            int row = 2;
+            foreach (var job in jobs) {
+                worksheet.Cells[row, 1].Value = job.Id;
+                worksheet.Cells[row, 2].Value = job.Number;
+                worksheet.Cells[row, 3].Value = job.Description;
+                worksheet.Cells[row, 4].Value = job.Customer?.Name;
+                worksheet.Cells[row, 5].Value = job.StartDate.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 6].Value = job.ContactName?.ToString();
+                worksheet.Cells[row, 7].Value = job.Status.ToString();
+                row++;
+            }
+
+            using var stream = new MemoryStream();
+            package.SaveAs(stream);
+            stream.Position = 0;
+
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
+        }
+
+        // Import Jobs
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile file) {
+            if (file == null || file.Length == 0) {
+                TempData["Error"] = "Please select a file to upload.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            int importedCount = 0;
+
+            try {
+                importedCount = fileExtension switch {
+                    ".csv" => await ImportCsv(file),
+                    ".xlsx" => await ImportExcel(file),
+                    _ => throw new Exception("Invalid file format. Please upload a CSV or Excel file.")
+                };
+
+                if (TempData["Error"] == null) {
+                    TempData[importedCount > 0 ? "Success" : "Info"] = importedCount > 0
+                    ? $"{importedCount} job(s) imported successfully."
+                    : "No new jobs were imported (duplicates may have been skipped).";
+                }
+            } catch (Exception ex) {
+                TempData["Error"] = "Error importing file: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // CSV Import Method
+        private async Task<int> ImportCsv(IFormFile file) {
+            int count = 0;
+
+            using var reader = new StreamReader(file.OpenReadStream());
+            using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) {
+                HeaderValidated = null,
+                MissingFieldFound = null
+            });
+
+            // Read header row
+            csv.Read();
+            csv.ReadHeader();
+
+            // Validate required columns
+            if (csv.HeaderRecord == null || !csv.HeaderRecord.Contains("Number") || !csv.HeaderRecord.Contains("Description") || !csv.HeaderRecord.Contains("Customer") || !csv.HeaderRecord.Contains("StartDate") || !csv.HeaderRecord.Contains("Status")) {
+                TempData["Error"] = "Invalid format: Column headers must contains: 'Number', 'Description', 'Customer', 'StartDate' and 'Status'.";
+                return 0;
+            }
+
+            var customers = _context.Customers.ToList(); // Cache customers to match by name
+
+            // Process each row
+            while (csv.Read()) {
+                string number = csv.GetField("Number")?.Trim();
+                string description = csv.GetField("Description")?.Trim();
+                string customerName = csv.GetField("Customer")?.Trim();
+                DateTime startDate = DateTime.Parse(csv.GetField("StartDate"));
+                string statusText = csv.GetField("Status")?.Trim();
+                string contactName = csv.GetField("ContactName")?.Trim();
+
+                // Find Customer
+                var customer = customers.FirstOrDefault(c => c.Name == customerName);
+                if (customer == null) continue; // Skip if customer doesn't exist
+
+                // Convert Status Enum
+                if (!Enum.TryParse(statusText, out JobStatus status)) continue;
+
+                // Ensure data is valid
+                if (!string.IsNullOrEmpty(number) && !string.IsNullOrEmpty(description) && !string.IsNullOrEmpty(customer.Name) && (startDate != null) && !string.IsNullOrEmpty(status.ToString()) && !_context.Jobs.Any(j => j.Number == number)) {
+                    _context.Jobs.Add(new Job {
+                        Number = number,
+                        Description = description,
+                        CustomerId = customer.Id,
+                        StartDate = startDate,
+                        Status = status,
+                        UserId = 1 // Replace with logged-in user
+                    });
+                    count++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return count;
+        }
+
+        // Excel Import Method
+        private async Task<int> ImportExcel(IFormFile file) {
+            int count = 0;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var package = new ExcelPackage(stream);
+            var worksheet = package.Workbook.Worksheets[0];
+
+            if (worksheet.Dimension.Columns < 6) {
+                TempData["Error"] = "Invalid format: The file must have at least six columns: 'JobId', 'Number', 'Description', 'Customer', 'StartDate', 'Status'.";
+                return 0;
+            }
+
+            // Validate headers
+            string numberHeader = worksheet.Cells[1, 2].Text.Trim().ToLower();
+            string descriptionHeader = worksheet.Cells[1, 3].Text.Trim().ToLower();
+            string customerHeader = worksheet.Cells[1, 4].Text.Trim().ToLower();
+            string dateHeader = worksheet.Cells[1, 5].Text.Trim().ToLower();
+            string statusHeader = worksheet.Cells[1, 6].Text.Trim().ToLower();
+
+            if (numberHeader != "number" || descriptionHeader != "description" || customerHeader != "customer" || dateHeader != "startdate" || statusHeader != "status") {
+                TempData["Error"] = "Invalid format: Column headers must include 'Number', 'Description', 'Customer', 'StartDate', 'Status'.";
+                return 0;
+            }
+
+            var customers = _context.Customers.ToList(); // Cache customers
+
+            for (int row = 2; row <= worksheet.Dimension.Rows; row++) {
+                string number = worksheet.Cells[row, 2].Text.Trim();
+                string description = worksheet.Cells[row, 3].Text.Trim();
+                string customerName = worksheet.Cells[row, 4].Text.Trim();
+                DateTime startDate = DateTime.Parse(worksheet.Cells[row, 5].Text);
+                string contactName = worksheet.Cells[row, 6].Text.Trim();
+                string statusText = worksheet.Cells[row, 7].Text.Trim();
+
+                var customer = customers.FirstOrDefault(c => c.Name == customerName);
+                if (customer == null) continue; // Skip if customer not found
+
+                if (!Enum.TryParse(statusText, out JobStatus status)) continue;
+
+                // Ensure data is valid
+                if (!string.IsNullOrEmpty(number) && !string.IsNullOrEmpty(description) && !string.IsNullOrEmpty(customer.Name) && (startDate != null) && !string.IsNullOrEmpty(status.ToString()) && !_context.Jobs.Any(j => j.Number == number)) {
+                    _context.Jobs.Add(new Job {
+                        Number = number,
+                        Description = description,
+                        CustomerId = customer.Id,
+                        StartDate = startDate,
+                        Status = status,
+                        UserId = 1 // Replace with logged-in user
+                    });
+                    count++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return count;
         }
     }
 }

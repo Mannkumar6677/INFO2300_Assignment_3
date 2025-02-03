@@ -13,8 +13,17 @@
 
                 <!-- Add, Export, and Import Buttons -->
                 <a href="@Url.Action("Create", "Job")" class="btn btn-outline-primary w-100 mb-2">Add Job</a>
-            
+                <a href="@Url.Action("ExportToCSV", "Job")" class="btn btn-outline-warning w-100 mb-2">Export to CSV</a>
+                <a href="@Url.Action("ExportToExcel", "Job")" class="btn btn-outline-success w-100 mb-3">Export to Excel</a>
+
                 <!-- Import Form -->
+                <form asp-action="Import" asp-controller="Job" method="post" enctype="multipart/form-data">
+                    <label class="form-label fw-bold">Import Jobs</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" name="file" required>
+                        <button type="submit" class="btn btn-outline-secondary">Import</button>
+                    </div>
+                </form>
             </div>
         </aside>
 
@@ -36,7 +45,7 @@
                             <option value="">All Customers</option>
                             @foreach (var customer in Model.Customers)
                             {
-                                <option value="@customer.Name" selected="@(customer.Name == Model.SelectedCustomer ? "selected" : null)">
+                                <option value="@customer.Id" selected="@(customer.Id.ToString() == Model.SelectedCustomer ? "selected" : null)">
                                     @customer.Name
                                 </option>
                             }
