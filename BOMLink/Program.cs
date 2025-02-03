@@ -13,7 +13,6 @@ using BOMLink.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSession(Options => { Options.IdleTimeout = TimeSpan.FromMinutes(30); });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<BOMLinkContext>(
@@ -25,6 +24,12 @@ builder.Services.AddAuthentication("Cookies") // Define default authentication s
         options.LogoutPath = "/User/Logout";
         options.AccessDeniedPath = "/Home/AccessDenied";
     });
+builder.Services.ConfigureApplicationCookie(options => {
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Logout after 30 minutes
+    options.SlidingExpiration = true; // Reset timer if the user is active
+    options.LoginPath = "/User/Login"; // Redirect to login page if expired
+});
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -35,8 +40,6 @@ app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseRouting();
-
-app.UseSession();
 
 app.UseAuthorization();
 
