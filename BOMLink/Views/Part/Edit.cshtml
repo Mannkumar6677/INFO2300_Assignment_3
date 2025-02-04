@@ -1,0 +1,43 @@
+﻿@model BOMLink.ViewModels.PartFormViewModel
+@{
+    ViewData["Title"] = "Edit Part";
+}
+
+<h2>Edit Part</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label class="form-label">Part Number</label>
+        <input asp-for="PartNumber" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <input asp-for="Description" class="form-control" required />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Manufacturer</label>
+        <select asp-for="ManufacturerId" asp-items="@(new SelectList(Model.Manufacturers, "ManufacturerId", "Name"))" class="form-select">
+            <option value="">Select Manufacturer</option>
+        </select>
+        <span asp-validation-for="ManufacturerId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Unit</label>
+        <select asp-for="Unit" asp-items="Html.GetEnumSelectList<UnitType>()" class="form-select"></select>
+        <span asp-validation-for="Unit" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Labour</label>
+        <input asp-for="Labour" type="number" step="0.01" class="form-control" required />
+        <span asp-validation-for="Labour" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-outline-primary">Save Changes</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

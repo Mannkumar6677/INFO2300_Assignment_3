@@ -96,22 +96,23 @@ namespace BOMLink.Migrations
                 name: "Parts",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PartNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Labour = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Per = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Unit = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ManufacturerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Parts", x => x.PartNumber);
+                    table.PrimaryKey("PK_Parts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Parts_Manufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
                         principalTable: "Manufacturers",
                         principalColumn: "ManufacturerId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -299,7 +300,6 @@ namespace BOMLink.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RFQId = table.Column<int>(type: "int", nullable: false),
                     PartId = table.Column<int>(type: "int", nullable: false),
-                    PartNumber = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     LeadTime = table.Column<int>(type: "int", nullable: false)
@@ -308,10 +308,10 @@ namespace BOMLink.Migrations
                 {
                     table.PrimaryKey("PK_RFQItems", x => x.RFQItemId);
                     table.ForeignKey(
-                        name: "FK_RFQItems_Parts_PartNumber",
-                        column: x => x.PartNumber,
+                        name: "FK_RFQItems_Parts_PartId",
+                        column: x => x.PartId,
                         principalTable: "Parts",
-                        principalColumn: "PartNumber",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RFQItems_RFQs_RFQId",
@@ -329,7 +329,6 @@ namespace BOMLink.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BOMId = table.Column<int>(type: "int", nullable: false),
                     PartId = table.Column<int>(type: "int", nullable: false),
-                    PartNumber = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -342,10 +341,10 @@ namespace BOMLink.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BOMItems_Parts_PartNumber",
-                        column: x => x.PartNumber,
+                        name: "FK_BOMItems_Parts_PartId",
+                        column: x => x.PartId,
                         principalTable: "Parts",
-                        principalColumn: "PartNumber",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -435,6 +434,16 @@ namespace BOMLink.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Parts",
+                columns: new[] { "Id", "Description", "Labour", "ManufacturerId", "PartNumber", "Unit" },
+                values: new object[,]
+                {
+                    { 1, "Circuit Breaker", 2.5m, 1, "P1001", "each" },
+                    { 2, "Relay", 1.0m, 2, "P1002", "each" },
+                    { 3, "Switch", 0.5m, 3, "P1003", "each" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "FirstName", "HashedPassword", "LastName", "RoleId", "Username" },
                 values: new object[,]
@@ -459,9 +468,9 @@ namespace BOMLink.Migrations
                 column: "BOMId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BOMItems_PartNumber",
+                name: "IX_BOMItems_PartId",
                 table: "BOMItems",
-                column: "PartNumber");
+                column: "PartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BOMs_JobId",
@@ -513,6 +522,12 @@ namespace BOMLink.Migrations
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Parts_PartNumber",
+                table: "Parts",
+                column: "PartNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_POItems_POId",
                 table: "POItems",
                 column: "POId");
@@ -543,9 +558,9 @@ namespace BOMLink.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RFQItems_PartNumber",
+                name: "IX_RFQItems_PartId",
                 table: "RFQItems",
-                column: "PartNumber");
+                column: "PartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RFQItems_RFQId",

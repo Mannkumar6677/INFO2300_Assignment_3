@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 namespace BOMLink.ViewModels {
     public class JobFormViewModel {
         #region Properties
-
         public int? Id { get; set; } // Nullable for Create
 
         [Required(ErrorMessage = "Please enter a job number.")]
@@ -28,7 +27,6 @@ namespace BOMLink.ViewModels {
         public int UserId { get; set; } // This will be set automatically
 
         public List<Customer> Customers { get; set; } = new(); // For Dropdown List
-
         #endregion
     }
 }

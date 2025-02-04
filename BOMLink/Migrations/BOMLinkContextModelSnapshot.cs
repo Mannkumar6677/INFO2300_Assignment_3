@@ -66,10 +66,6 @@ namespace BOMLink.Migrations
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PartNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -77,7 +73,7 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("BOMId");
 
-                    b.HasIndex("PartNumber");
+                    b.HasIndex("PartId");
 
                     b.ToTable("BOMItems");
                 });
@@ -335,16 +331,15 @@ namespace BOMLink.Migrations
 
             modelBuilder.Entity("BOMLink.Models.Part", b =>
                 {
-                    b.Property<string>("PartNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("Labour")
                         .HasPrecision(18, 2)
@@ -353,15 +348,52 @@ namespace BOMLink.Migrations
                     b.Property<int>("ManufacturerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Per")
+                    b.Property<string>("PartNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("PartNumber");
+                    b.HasKey("Id");
 
                     b.HasIndex("ManufacturerId");
 
+                    b.HasIndex("PartNumber")
+                        .IsUnique();
+
                     b.ToTable("Parts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Circuit Breaker",
+                            Labour = 2.5m,
+                            ManufacturerId = 1,
+                            PartNumber = "P1001",
+                            Unit = "each"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Relay",
+                            Labour = 1.0m,
+                            ManufacturerId = 2,
+                            PartNumber = "P1002",
+                            Unit = "each"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Switch",
+                            Labour = 0.5m,
+                            ManufacturerId = 3,
+                            PartNumber = "P1003",
+                            Unit = "each"
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.RFQ", b =>
@@ -412,10 +444,6 @@ namespace BOMLink.Migrations
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PartNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -428,7 +456,7 @@ namespace BOMLink.Migrations
 
                     b.HasKey("RFQItemId");
 
-                    b.HasIndex("PartNumber");
+                    b.HasIndex("PartId");
 
                     b.HasIndex("RFQId");
 
@@ -673,7 +701,7 @@ namespace BOMLink.Migrations
 
                     b.HasOne("BOMLink.Models.Part", "Part")
                         .WithMany()
-                        .HasForeignKey("PartNumber")
+                        .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -760,7 +788,7 @@ namespace BOMLink.Migrations
                     b.HasOne("BOMLink.Models.Manufacturer", "Manufacturer")
                         .WithMany()
                         .HasForeignKey("ManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Manufacturer");
@@ -797,7 +825,7 @@ namespace BOMLink.Migrations
                 {
                     b.HasOne("BOMLink.Models.Part", "Part")
                         .WithMany()
-                        .HasForeignKey("PartNumber")
+                        .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -127,6 +127,27 @@ namespace BOMLink.Data {
                 new Status { StatusId = 3, Name = "Backorder" }
             );
 
+            // Part data
+            modelBuilder.Entity<Part>()
+                .HasIndex(m => m.PartNumber)
+                .IsUnique();  // Ensure unique part numbers
+            modelBuilder.Entity<Part>()
+                .Property(p => p.Labour)
+                .HasPrecision(18, 2); // Set precision for Labour column    
+            modelBuilder.Entity<Part>()
+                .Property(p => p.Unit)
+                .HasConversion<string>(); // Store Enum as String
+            modelBuilder.Entity<Part>()
+                .HasOne(p => p.Manufacturer)
+                .WithMany()
+                .HasForeignKey(p => p.ManufacturerId)
+                .OnDelete(DeleteBehavior.Restrict); // Define foreign key relationship with Manufacturer
+            modelBuilder.Entity<Part>().HasData(
+                new Part { Id = 1, PartNumber = "P1001", Description = "Circuit Breaker", Labour = 2.5m, Unit = UnitType.each, ManufacturerId = 1 },
+                new Part { Id = 2, PartNumber = "P1002", Description = "Relay", Labour = 1.0m, Unit = UnitType.each, ManufacturerId = 2 },
+                new Part { Id = 3, PartNumber = "P1003", Description = "Switch", Labour = 0.5m, Unit = UnitType.each, ManufacturerId = 3 }
+            );
+
             // Job data
             modelBuilder.Entity<Job>()
                 .HasIndex(m => m.Number)
@@ -134,11 +155,16 @@ namespace BOMLink.Data {
             modelBuilder.Entity<Job>()
                 .Property(j => j.StartDate)
                 .HasDefaultValueSql("GETUTCDATE()"); // Uses the database default UTC date
-                        modelBuilder.Entity<Job>().HasData(
+            modelBuilder.Entity<Job>().HasData(
                 new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
                 new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
                 new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2 , StartDate = new DateTime(2021, 1, 1) }
             );
+            modelBuilder.Entity<Job>()
+                .HasOne(j => j.User)
+                .WithMany(u => u.Jobs)
+                .HasForeignKey(j => j.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             // Manufacturer data
@@ -177,10 +203,6 @@ namespace BOMLink.Data {
                 new Customer { Id = 3, Name = "123 Company", CustomerCode = "123CO" }
             );
 
-            modelBuilder.Entity<Part>()
-                .Property(p => p.Labour)
-                .HasPrecision(18, 2);
-
             modelBuilder.Entity<RFQItem>()
                 .Property(r => r.Price)
                 .HasPrecision(18, 2);
@@ -196,12 +218,6 @@ namespace BOMLink.Data {
                 .WithOne(bi => bi.BOM)
                 .HasForeignKey(bi => bi.BOMId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Job>()
-                    .HasOne(j => j.User)
-                    .WithMany(u => u.Jobs)
-                    .HasForeignKey(j => j.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RFQ>()
                 .HasOne(b => b.User)
