@@ -8,6 +8,7 @@
 * Aline Sathler Delfino, 2025.02.02: Manufacturer, Supplier, Customer, Job.
 * Aline Sathler Delfino, 2025.02.03: Job: Validation to avoid duplicate number, import/export.
 * Aline Sathler Delfino, 2025.02.03: Part, Supplier-Manufacturer Mapping.
+* Aline Sathler Delfino, 2025.02.04: Automatic Logout.
 */
 
 using BOMLink.Data;
@@ -29,6 +30,7 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Logout after 30 minutes
     options.SlidingExpiration = true; // Reset timer if the user is active
     options.LoginPath = "/User/Login"; // Redirect to login page if expired
+    options.LogoutPath = "/User/Logout"; // Redirect to logout page if expired
 });
 
 builder.Services.AddAuthorization();

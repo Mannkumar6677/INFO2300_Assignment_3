@@ -45,7 +45,14 @@ namespace BOMLink.Controllers {
                     var identity = new ClaimsIdentity(claims, "Cookies");
                     var principal = new ClaimsPrincipal(identity);
 
-                    await HttpContext.SignInAsync("Cookies", principal);
+                    // Define authentication properties (to control expiration)
+                    var authProperties = new AuthenticationProperties {
+                        IsPersistent = false, // Prevents cookie from persisting beyond session
+                        ExpiresUtc = DateTime.UtcNow.AddMinutes(30), // Sets expiration to 30 minutes
+                        AllowRefresh = true // Enables sliding expiration if user is active
+                    };
+
+                    await HttpContext.SignInAsync("Cookies", principal, authProperties);
                     return RedirectToAction("Index", "Dashboard");
                 }
             }
@@ -53,7 +60,6 @@ namespace BOMLink.Controllers {
             TempData["InvalidLogin"] = "Invalid username or password.";
             return View();
         }
-
 
         public async Task<IActionResult> Logout() {
             await HttpContext.SignOutAsync("Cookies");
