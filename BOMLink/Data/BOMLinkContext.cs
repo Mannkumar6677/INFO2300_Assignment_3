@@ -158,7 +158,7 @@ namespace BOMLink.Data {
             modelBuilder.Entity<Job>().HasData(
                 new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
                 new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
-                new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2 , StartDate = new DateTime(2021, 1, 1) }
+                new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2, StartDate = new DateTime(2021, 1, 1) }
             );
             modelBuilder.Entity<Job>()
                 .HasOne(j => j.User)
@@ -174,7 +174,7 @@ namespace BOMLink.Data {
             modelBuilder.Entity<Manufacturer>().HasData(
                 new Manufacturer { ManufacturerId = 1, Name = "Schneider" },
                 new Manufacturer { ManufacturerId = 2, Name = "Phoenix Contact" },
-                new Manufacturer { ManufacturerId = 3, Name = "Siemens" }
+                new Manufacturer { ManufacturerId = 3, Name = "Mersen" }
             );
 
             // Supplier data
@@ -188,6 +188,25 @@ namespace BOMLink.Data {
                 new Supplier { Id = 1, Name = "Graybar", ContactEmail = "test@gmail.com", SupplierCode = "GRAELE" },
                 new Supplier { Id = 2, Name = "House of Electric", ContactEmail = "test@gmail.com", SupplierCode = "HOUELE" },
                 new Supplier { Id = 3, Name = "Hammond", ContactEmail = "test@gmail.com", SupplierCode = "HAMMND" }
+            );
+
+            // SupplierManufacturer data
+            modelBuilder.Entity<SupplierManufacturer>()
+                .HasOne(sm => sm.Supplier)
+                .WithMany(s => s.SupplierManufacturers)
+                .HasForeignKey(sm => sm.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade); // Define foreign key relationship with Supplier
+            modelBuilder.Entity<SupplierManufacturer>()
+                .HasOne(sm => sm.Manufacturer)
+                .WithMany(m => m.SupplierManufacturers)
+                .HasForeignKey(sm => sm.ManufacturerId)
+                .OnDelete(DeleteBehavior.Cascade); // Define foreign key relationship with Manufacturer
+            modelBuilder.Entity<SupplierManufacturer>().HasData(
+                new SupplierManufacturer { Id = 1, SupplierId = 1, ManufacturerId = 1 }, // Graybar - Schneider
+                new SupplierManufacturer { Id = 2, SupplierId = 1, ManufacturerId = 2 }, // Graybar - Phoenix Contact
+                new SupplierManufacturer { Id = 3, SupplierId = 2, ManufacturerId = 3 }, // House of Electric - Mersen
+                new SupplierManufacturer { Id = 4, SupplierId = 3, ManufacturerId = 1 }, // Hammond - Schneider
+                new SupplierManufacturer { Id = 5, SupplierId = 3, ManufacturerId = 3 }  // Hammond - Siemens
             );
 
             // Customer data

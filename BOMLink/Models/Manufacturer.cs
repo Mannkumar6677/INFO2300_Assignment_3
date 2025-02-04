@@ -10,7 +10,7 @@ namespace BOMLink.Models {
         public string Name { get; set; }
 
         // Navigation properties for SupplierManufacturers
-        public ICollection<SupplierManufacturer> SupplierManufacturers { get; set; } = new List<SupplierManufacturer>();
+        public List<SupplierManufacturer> SupplierManufacturers { get; set; } = new();
         #endregion
     }
 }

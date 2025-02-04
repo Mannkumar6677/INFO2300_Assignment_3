@@ -401,7 +401,7 @@ namespace BOMLink.Migrations
                 {
                     { 1, "Schneider" },
                     { 2, "Phoenix Contact" },
-                    { 3, "Siemens" }
+                    { 3, "Mersen" }
                 });
 
             migrationBuilder.InsertData(
@@ -441,6 +441,18 @@ namespace BOMLink.Migrations
                     { 1, "Circuit Breaker", 2.5m, 1, "P1001", "each" },
                     { 2, "Relay", 1.0m, 2, "P1002", "each" },
                     { 3, "Switch", 0.5m, 3, "P1003", "each" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SupplierManufacturer",
+                columns: new[] { "Id", "ManufacturerId", "SupplierId" },
+                values: new object[,]
+                {
+                    { 1, 1, 1 },
+                    { 2, 2, 1 },
+                    { 3, 3, 2 },
+                    { 4, 1, 3 },
+                    { 5, 3, 3 }
                 });
 
             migrationBuilder.InsertData(

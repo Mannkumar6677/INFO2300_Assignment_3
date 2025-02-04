@@ -257,7 +257,7 @@ namespace BOMLink.Migrations
                         new
                         {
                             ManufacturerId = 3,
-                            Name = "Siemens"
+                            Name = "Mersen"
                         });
                 });
 
@@ -616,6 +616,38 @@ namespace BOMLink.Migrations
                     b.HasIndex("SupplierId");
 
                     b.ToTable("SupplierManufacturer");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ManufacturerId = 1,
+                            SupplierId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ManufacturerId = 2,
+                            SupplierId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ManufacturerId = 3,
+                            SupplierId = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ManufacturerId = 1,
+                            SupplierId = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ManufacturerId = 3,
+                            SupplierId = 3
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.User", b =>
