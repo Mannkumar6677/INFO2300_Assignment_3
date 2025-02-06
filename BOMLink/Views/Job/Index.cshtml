@@ -80,6 +80,11 @@
                             </a>
                         </th>
                         <th>
+                            <a href="@Url.Action("Index", new { sortBy = "createdby", sortOrder = Model.SortOrder == "asc" ? "desc" : "asc", searchTerm = Model.SearchTerm, selectedCustomer = Model.SelectedCustomer })">
+                                Created By
+                            </a>
+                        </th>
+                        <th>
                             <a href="@Url.Action("Index", new { sortBy = "status", sortOrder = Model.SortOrder == "asc" ? "desc" : "asc", searchTerm = Model.SearchTerm, selectedCustomer = Model.SelectedCustomer })">
                                 Status
                             </a>
@@ -95,6 +100,7 @@
                             <td>@job.Description</td>
                             <td>@job.Customer?.Name</td>
                             <td>@job.StartDate.ToShortDateString()</td>
+							<td>@job.CreatedBy</td>
                             <td>@job.Status</td>
                             <td class="text-end">
                                 <a href="@Url.Action("Edit", "Job", new { id = job.Id })" class="text-warning me-3">

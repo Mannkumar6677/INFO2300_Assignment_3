@@ -1,9 +1,12 @@
 ﻿using BOMLink.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace BOMLink.Data {
-    public class BOMLinkContext : DbContext {
+    //public class BOMLinkContext : DbContext {
+    public class BOMLinkContext : IdentityDbContext<ApplicationUser> {
         public BOMLinkContext(DbContextOptions<BOMLinkContext> options) : base(options) { }
 
         public DbSet<BOM> BOMs { get; set; }
@@ -20,7 +23,8 @@ namespace BOMLink.Data {
         public DbSet<Status> Status { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierManufacturer> SupplierManufacturer { get; set; }
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             //// ✅ Explicitly define primary key for IdentityUserRole<string>
@@ -97,35 +101,35 @@ namespace BOMLink.Data {
             //    new IdentityUserRole<string> { UserId = "1002", RoleId = "2" }  // User Role
             //);
 
-            modelBuilder.Entity<User>().HasData(
-                new User {
-                    UserId = 1,
-                    Username = "admin",
-                    HashedPassword = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
-                    FirstName = "Admin",
-                    LastName = "Admin",
-                    RoleId = 1
-                },
-                new User {
-                    UserId = 2,
-                    Username = "JDS",
-                    HashedPassword = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
-                    FirstName = "User",
-                    LastName = "User",
-                    RoleId = 2
-                }
-            );
+            //modelBuilder.Entity<User>().HasData(
+            //    new User {
+            //        UserId = 1,
+            //        Username = "admin",
+            //        HashedPassword = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
+            //        FirstName = "Admin",
+            //        LastName = "Admin",
+            //        RoleId = 1
+            //    },
+            //    new User {
+            //        UserId = 2,
+            //        Username = "JDS",
+            //        HashedPassword = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
+            //        FirstName = "User",
+            //        LastName = "User",
+            //        RoleId = 2
+            //    }
+            //);
 
-            modelBuilder.Entity<Role>().HasData(
-                new Role { RoleId = 1, Name = "HR" },
-                new Role { RoleId = 2, Name = "User" }
-            );
+            //modelBuilder.Entity<Role>().HasData(
+            //    new Role { RoleId = 1, Name = "HR" },
+            //    new Role { RoleId = 2, Name = "User" }
+            //);
 
-            modelBuilder.Entity<Status>().HasData(
-                new Status { StatusId = 1, Name = "Open" },
-                new Status { StatusId = 2, Name = "Closed" },
-                new Status { StatusId = 3, Name = "Backorder" }
-            );
+            //modelBuilder.Entity<Status>().HasData(
+            //    new Status { StatusId = 1, Name = "Open" },
+            //    new Status { StatusId = 2, Name = "Closed" },
+            //    new Status { StatusId = 3, Name = "Backorder" }
+            //);
 
             // Part data
             modelBuilder.Entity<Part>()
@@ -156,12 +160,12 @@ namespace BOMLink.Data {
                 .Property(j => j.StartDate)
                 .HasDefaultValueSql("GETUTCDATE()"); // Uses the database default UTC date
             modelBuilder.Entity<Job>().HasData(
-                new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
-                new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = 2, StartDate = new DateTime(2021, 1, 1) },
-                new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = 2, StartDate = new DateTime(2021, 1, 1) }
+                new Job { Id = 1, Number = "J0001", Description = "Job 1", CustomerId = 1, ContactName = "John Doe", Status = JobStatus.Pending, UserId = "2", StartDate = new DateTime(2021, 1, 1) },
+                new Job { Id = 2, Number = "J0002", Description = "Job 2", CustomerId = 2, ContactName = "Jane Doe", Status = JobStatus.Completed, UserId = "2", StartDate = new DateTime(2021, 1, 1) },
+                new Job { Id = 3, Number = "J0003", Description = "Job 3", CustomerId = 3, ContactName = "Jack Doe", Status = JobStatus.Canceled, UserId = "2", StartDate = new DateTime(2021, 1, 1) }
             );
             modelBuilder.Entity<Job>()
-                .HasOne(j => j.User)
+                .HasOne(j => j.CreatedBy)
                 .WithMany(u => u.Jobs)
                 .HasForeignKey(j => j.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -221,6 +225,64 @@ namespace BOMLink.Data {
                 new Customer { Id = 2, Name = "XYZ Company", CustomerCode = "XYZCO" },
                 new Customer { Id = 3, Name = "123 Company", CustomerCode = "123CO" }
             );
+
+            // User data
+            // Define Composite Primary Key for IdentityUserRole
+            modelBuilder.Entity<IdentityUserRole<string>>()
+                .HasKey(iur => new { iur.UserId, iur.RoleId });
+
+            // Seed Roles
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = "1", Name = UserRole.Admin.ToString(), NormalizedName = "ADMIN" },
+                new IdentityRole { Id = "2", Name = UserRole.PM.ToString(), NormalizedName = "PROJECT MANAGER" },
+                new IdentityRole { Id = "3", Name = UserRole.Receiving.ToString(), NormalizedName = "RECEIVING" },
+                new IdentityRole { Id = "4", Name = UserRole.Guest.ToString(), NormalizedName = "GUEST" }
+            );
+
+            // 🔹 Admin User (Precomputed Static Hash)
+            var admin = new ApplicationUser {
+                Id = "1",
+                UserName = "admin",
+                NormalizedUserName = "ADMIN",
+                Email = "admin@bomlink.com",
+                NormalizedEmail = "ADMIN@BOMLINK.COM",
+                FirstName = "Admin",
+                LastName = "User",
+                Role = UserRole.Admin,
+                EmailConfirmed = true,
+                SecurityStamp = "STATIC_SECURITY_STAMP_1", // Use fixed string instead of Guid.NewGuid()
+                ConcurrencyStamp = "STATIC_CONCURRENCY_STAMP_1" // Use fixed string instead of Guid.NewGuid()
+            };
+
+            // Precomputed hashed password (instead of dynamically hashing it)
+            admin.PasswordHash = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==";
+
+            modelBuilder.Entity<ApplicationUser>().HasData(admin);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string> { UserId = "1", RoleId = "1" }
+            ); // Assign Admin Role
+
+            // 🔹 User 1 (Precomputed Static Hash)
+            var user1 = new ApplicationUser {
+                Id = "2",
+                UserName = "JDS",
+                NormalizedUserName = "JDS",
+                Email = "jds@bomlink.com",
+                NormalizedEmail = "JDS@BOMLINK.COM",
+                FirstName = "First",
+                LastName = "User",
+                Role = UserRole.PM,
+                EmailConfirmed = true,
+                SecurityStamp = "STATIC_SECURITY_STAMP_2", // Use fixed string instead of Guid.NewGuid()
+                ConcurrencyStamp = "STATIC_CONCURRENCY_STAMP_2" // Use fixed string instead of Guid.NewGuid()
+            };
+
+            user1.PasswordHash = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ=="; // Precomputed hash
+
+            modelBuilder.Entity<ApplicationUser>().HasData(user1);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string> { UserId = "2", RoleId = "2" }
+            ); // Assign Project Manager Role
 
             modelBuilder.Entity<RFQItem>()
                 .Property(r => r.Price)

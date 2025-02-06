@@ -1,17 +1,17 @@
-﻿using BOMLink.Data;
-using BOMLink.Models;
+﻿using BOMLink.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BOMLink.Controllers {
     public class UserController : Controller {
-        private readonly BOMLinkContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserController(BOMLinkContext context) {
-            _context = context;
+        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) {
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public IActionResult Login() {
@@ -20,36 +20,27 @@ namespace BOMLink.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password) {
-            var user = _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefault(u => u.Username == username);
-
+            var user = await _userManager.FindByNameAsync(username);
             if (user != null) {
-                var passwordHasher = new PasswordHasher<User>();
-                var result = passwordHasher.VerifyHashedPassword(user, user.HashedPassword, password);
+                var result = await _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false);
 
-                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded) {
-                    // If rehash is needed, update the hash in the database
-                    if (result == PasswordVerificationResult.SuccessRehashNeeded) {
-                        user.HashedPassword = passwordHasher.HashPassword(user, password);
-                        _context.SaveChanges();
-                    }
+                if (result.Succeeded) {
+                    var roles = await _userManager.GetRolesAsync(user);
 
                     var claims = new List<Claim>
                     {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("FullName", $"{user.FirstName} {user.LastName}"),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? "User")
-            };
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+                        new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? "User") // Assign first role
+                    };
 
                     var identity = new ClaimsIdentity(claims, "Cookies");
                     var principal = new ClaimsPrincipal(identity);
 
-                    // Define authentication properties (to control expiration)
                     var authProperties = new AuthenticationProperties {
-                        IsPersistent = false, // Prevents cookie from persisting beyond session
-                        ExpiresUtc = DateTime.UtcNow.AddMinutes(30), // Sets expiration to 30 minutes
-                        AllowRefresh = true // Enables sliding expiration if user is active
+                        IsPersistent = false,
+                        ExpiresUtc = DateTime.UtcNow.AddMinutes(30),
+                        AllowRefresh = true
                     };
 
                     await HttpContext.SignInAsync("Cookies", principal, authProperties);
@@ -62,8 +53,10 @@ namespace BOMLink.Controllers {
         }
 
         public async Task<IActionResult> Logout() {
-            await HttpContext.SignOutAsync("Cookies");
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
     }
 }
+
+

@@ -33,10 +33,10 @@ namespace BOMLink.Models {
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser CreatedBy { get; set; }
         #endregion
     }
 

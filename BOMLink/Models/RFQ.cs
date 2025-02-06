@@ -14,10 +14,10 @@ namespace BOMLink.Models {
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; } // IdentityUser uses string for ID
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         // Navigation properties for RFQItems
         public ICollection<RFQItem> RFQItems { get; set; } = new List<RFQItem>();

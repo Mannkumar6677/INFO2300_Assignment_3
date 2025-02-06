@@ -13,10 +13,10 @@ namespace BOMLink.Models {
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; } // IdentityUser uses string for ID
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
         // Navigation properties for POItems
         public ICollection<POItem> POItems { get; set; } = new List<POItem>();
         #endregion

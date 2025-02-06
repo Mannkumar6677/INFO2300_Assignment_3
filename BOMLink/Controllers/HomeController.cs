@@ -17,7 +17,7 @@ namespace BOMLink.Controllers {
             }
 
             var username = User.Identity.Name;
-            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            var user = _context.Users.FirstOrDefault(u => u.UserName == username);
 
             return RedirectToAction("Index", "Dashboard");
         }

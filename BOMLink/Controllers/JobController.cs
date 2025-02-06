@@ -8,11 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Globalization;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BOMLink.Controllers {
     [Authorize]
@@ -25,7 +22,7 @@ namespace BOMLink.Controllers {
 
         // GET: Job
         public async Task<IActionResult> Index(string searchTerm, int? selectedCustomer, string sortBy, string sortOrder) {
-            var jobs = _context.Jobs.Include(j => j.Customer).AsQueryable();
+            var jobs = _context.Jobs.Include(j => j.Customer).Include(j => j.CreatedBy).AsQueryable();
 
             // Filtering by customer (if selected)
             if (selectedCustomer.HasValue) {
@@ -43,6 +40,7 @@ namespace BOMLink.Controllers {
                 "status" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.Status) : jobs.OrderBy(j => j.Status),
                 "date" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.StartDate) : jobs.OrderBy(j => j.StartDate),
                 "number" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.Number) : jobs.OrderBy(j => j.Number),
+                "createdby" => sortOrder == "desc" ? jobs.OrderByDescending(j => j.CreatedBy) : jobs.OrderBy(j => j.CreatedBy),
                 _ => jobs.OrderBy(j => j.Number)
             };
 
@@ -84,6 +82,8 @@ namespace BOMLink.Controllers {
                 return View(viewModel);
             }
 
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var job = new Job {
                 Number = viewModel.Number,
                 Description = viewModel.Description,
@@ -91,7 +91,7 @@ namespace BOMLink.Controllers {
                 StartDate = viewModel.StartDate,
                 ContactName = viewModel.ContactName,
                 Status = viewModel.Status,
-                UserId = 1 // Replace with logged-in user later
+                UserId = userId
             };
 
             _context.Jobs.Add(job);
@@ -275,6 +275,9 @@ namespace BOMLink.Controllers {
 
             var customers = _context.Customers.ToList(); // Cache customers to match by name
 
+            // Get logged-in user ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             // Process each row
             while (csv.Read()) {
                 string number = csv.GetField("Number")?.Trim();
@@ -299,7 +302,7 @@ namespace BOMLink.Controllers {
                         CustomerId = customer.Id,
                         StartDate = startDate,
                         Status = status,
-                        UserId = 1 // Replace with logged-in user
+                        UserId = userId
                     });
                     count++;
                 }
@@ -338,6 +341,9 @@ namespace BOMLink.Controllers {
 
             var customers = _context.Customers.ToList(); // Cache customers
 
+            // Get logged-in user ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             for (int row = 2; row <= worksheet.Dimension.Rows; row++) {
                 string number = worksheet.Cells[row, 2].Text.Trim();
                 string description = worksheet.Cells[row, 3].Text.Trim();
@@ -359,7 +365,7 @@ namespace BOMLink.Controllers {
                         CustomerId = customer.Id,
                         StartDate = startDate,
                         Status = status,
-                        UserId = 1 // Replace with logged-in user
+                        UserId = userId
                     });
                     count++;
                 }
