@@ -45,6 +45,9 @@ namespace BOMLink.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -71,6 +74,10 @@ namespace BOMLink.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfilePicturePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -112,6 +119,7 @@ namespace BOMLink.Migrations
                             NormalizedUserName = "ADMIN",
                             PasswordHash = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
                             PhoneNumberConfirmed = false,
+                            ProfilePicturePath = "/images/default-profile.png",
                             Role = 0,
                             SecurityStamp = "STATIC_SECURITY_STAMP_1",
                             TwoFactorEnabled = false,
@@ -131,6 +139,7 @@ namespace BOMLink.Migrations
                             NormalizedUserName = "JDS",
                             PasswordHash = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
                             PhoneNumberConfirmed = false,
+                            ProfilePicturePath = "/images/default-profile.png",
                             Role = 1,
                             SecurityStamp = "STATIC_SECURITY_STAMP_2",
                             TwoFactorEnabled = false,
@@ -958,15 +967,15 @@ namespace BOMLink.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BOMLink.Models.ApplicationUser", "User")
+                    b.HasOne("BOMLink.Models.ApplicationUser", "CreatedBy")
                         .WithMany("Jobs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Customer");
+                    b.Navigation("CreatedBy");
 
-                    b.Navigation("User");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("BOMLink.Models.PO", b =>

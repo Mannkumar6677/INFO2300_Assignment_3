@@ -9,7 +9,8 @@
 * Aline Sathler Delfino, 2025.02.03: Job: Validation to avoid duplicate number, import/export.
 * Aline Sathler Delfino, 2025.02.03: Part, Supplier-Manufacturer Mapping.
 * Aline Sathler Delfino, 2025.02.04: Automatic Logout.
-* Aline Sathler Delfino, 2025.02.04: User application using AspNetCore.Identity.
+* Aline Sathler Delfino, 2025.02.05: User application using AspNetCore.Identity.
+* Aline Sathler Delfino, 2025.02.06: User settings, Profile Picture, User Roles.
 */
 
 using Microsoft.AspNetCore.Identity;
@@ -30,9 +31,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options => {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Auto logout after 30 min
-    options.SlidingExpiration = true; // Extend session if active
-    options.LoginPath = "/User/Login"; // Redirect to login
+    options.LoginPath = "/User/Login";  // Redirect to login if unauthorized
+    options.LogoutPath = "/User/Logout";
+    options.AccessDeniedPath = "/Home/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.SlidingExpiration = true; // Reset timer if user is active
 });
 
 builder.Services.AddAuthentication("Cookies")
@@ -41,6 +47,10 @@ builder.Services.AddAuthentication("Cookies")
         options.LogoutPath = "/User/Logout";
         options.AccessDeniedPath = "/Home/AccessDenied";
     });
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options => {
+    options.ValidationInterval = TimeSpan.Zero; // Force check on every request (Ensures the function to logout of all devices)
+});
 
 builder.Services.AddAuthorization();
 

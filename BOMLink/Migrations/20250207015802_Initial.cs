@@ -34,6 +34,8 @@ namespace BOMLink.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProfilePicturePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -522,11 +524,11 @@ namespace BOMLink.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Role", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastLogin", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ProfilePicturePath", "Role", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "1", 0, "STATIC_CONCURRENCY_STAMP_1", "admin@bomlink.com", true, "Admin", "User", false, null, "ADMIN@BOMLINK.COM", "ADMIN", "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==", null, false, 0, "STATIC_SECURITY_STAMP_1", false, "admin" },
-                    { "2", 0, "STATIC_CONCURRENCY_STAMP_2", "jds@bomlink.com", true, "First", "User", false, null, "JDS@BOMLINK.COM", "JDS", "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==", null, false, 1, "STATIC_SECURITY_STAMP_2", false, "JDS" }
+                    { "1", 0, "STATIC_CONCURRENCY_STAMP_1", "admin@bomlink.com", true, "Admin", null, "User", false, null, "ADMIN@BOMLINK.COM", "ADMIN", "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==", null, false, "/images/default-profile.png", 0, "STATIC_SECURITY_STAMP_1", false, "admin" },
+                    { "2", 0, "STATIC_CONCURRENCY_STAMP_2", "jds@bomlink.com", true, "First", null, "User", false, null, "JDS@BOMLINK.COM", "JDS", "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==", null, false, "/images/default-profile.png", 1, "STATIC_SECURITY_STAMP_2", false, "JDS" }
                 });
 
             migrationBuilder.InsertData(

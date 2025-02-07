@@ -9,6 +9,8 @@ namespace BOMLink.Models {
 
         [Required(ErrorMessage = "Last name is required.")]
         public string LastName { get; set; }
+        public DateTime? LastLogin { get; set; } // Stores last login timestamp
+        public string ProfilePicturePath { get; set; } = "/images/default-profile.png";
 
         [Required(ErrorMessage = "Role is required.")]
         public UserRole Role { get; set; }
