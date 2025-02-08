@@ -18,7 +18,7 @@ namespace BOMLink.Controllers {
 
         // GET: List Users
         public async Task<IActionResult> Users(string searchTerm, string role, string sortBy, string sortOrder) {
-            var users = await _userManager.Users.ToListAsync(); // 🔥 Fetch all users
+            var users = await _userManager.Users.ToListAsync(); // Fetch all users
 
             // Search by Username or Email
             if (!string.IsNullOrEmpty(searchTerm)) {

@@ -13,18 +13,6 @@
 	<script src="~/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 	<!-- Theme Persistent -->
-@* 	<script>
-		(function() {
-			try {
-				let theme = localStorage.getItem("theme") || "light";
-				document.documentElement.setAttribute("data-bs-theme", theme);
-			} catch (error) {
-				console.warn("Storage blocked. Using light mode.");
-				document.documentElement.setAttribute("data-bs-theme", "light");
-			}
-		})();
-	</script> *@
-
 	<script>
 		(function () {
 			let savedTheme = "light"; // Default theme
@@ -72,7 +60,7 @@
 				<nav class="navbar navbar-expand-lg">
 					<div class="container-fluid">
 						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-							<span class="navbar-toggler-icon"></span>
+							<span class="navbar-toggler-icon text-dark"></span>
 						</button>
 						<div class="collapse navbar-collapse" id="navbarNav">
 							<ul class="navbar-nav ms-auto">

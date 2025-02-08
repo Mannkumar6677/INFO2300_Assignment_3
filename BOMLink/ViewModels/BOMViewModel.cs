@@ -14,6 +14,7 @@ namespace BOMLink.ViewModels {
         public decimal Version { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string BOMNumber => $"BOM-{Id:D6}";
 
         // Format Version for Display
         public string VersionFormatted => Version.ToString("0.0");

@@ -194,6 +194,13 @@ namespace BOMLink.Data {
                 .WithOne(bi => bi.BOM)
                 .HasForeignKey(bi => bi.BOMId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BOM>()
+                .HasMany(b => b.RFQs)
+                .WithOne(r => r.BOM)
+                .HasForeignKey(r => r.BOMId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent deleting BOM if used in RFQ
+            modelBuilder.Entity<BOM>()
+                .ToTable(t => t.HasCheckConstraint("CK_BOM_JobOrCustomer", "(JobId IS NOT NULL AND CustomerId IS NULL) OR (JobId IS NULL AND CustomerId IS NOT NULL)"));
             modelBuilder.Entity<BOM>().HasData(
                 new BOM {
                     Id = 1,

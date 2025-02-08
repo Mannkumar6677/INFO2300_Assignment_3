@@ -10,6 +10,9 @@ namespace BOMLink.Models {
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }
 
+        public int BOMId { get; set; }
+        public BOM BOM { get; set; }
+
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
         public string UserId { get; set; } // IdentityUser uses string for ID

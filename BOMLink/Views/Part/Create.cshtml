@@ -20,10 +20,10 @@
 
     <div class="mb-3">
         <label class="form-label">Manufacturer</label>
-        <select asp-for="ManufacturerId" asp-items="@(new SelectList(Model.Manufacturers, "ManufacturerId", "Name"))" class="form-select">
+        <select asp-for="Id" asp-items="@(new SelectList(Model.Manufacturers, "Id", "Name"))" class="form-select">
             <option value="">Select Manufacturer</option>
         </select>
-        <span asp-validation-for="ManufacturerId" class="text-danger"></span>
+        <span asp-validation-for="Id" class="text-danger"></span>
     </div>
 
     <div class="mb-3">

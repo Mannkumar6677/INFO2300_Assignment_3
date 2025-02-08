@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BOMLink.Validations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -20,6 +21,10 @@ namespace BOMLink.Models {
 
         [Required(ErrorMessage = "Please enter a description.")]
         public string Description { get; set; }
+
+        [Required(ErrorMessage = "You must select either a Job or a Customer.")]
+        [EnsureEitherJobOrCustomerValidation]
+        public string ValidationRule => "Ensuring either Job or Customer is selected";
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
@@ -50,8 +55,13 @@ namespace BOMLink.Models {
         [Required]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; // Auto-update when modified
 
+        [NotMapped]
+        public string BOMNumber => $"BOM-{Id:D6}";
+
         // Navigation properties for BOMItems
         public ICollection<BOMItem> BOMItems { get; set; } = new List<BOMItem>();
+        public ICollection<RFQ> RFQs { get; set; } = new List<RFQ>();
+        public ICollection<PO> POs { get; set; } = new List<PO>();
         #endregion
 
         #region Methods
