@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250207015802_Initial")]
+    [Migration("20250208025924_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -790,7 +790,7 @@ namespace BOMLink.Migrations
                         {
                             Id = "2",
                             Name = "PM",
-                            NormalizedName = "PROJECT MANAGER"
+                            NormalizedName = "PM"
                         },
                         new
                         {

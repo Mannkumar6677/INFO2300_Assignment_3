@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BOMLink.Data {
-    //public class BOMLinkContext : DbContext {
     public class BOMLinkContext : IdentityDbContext<ApplicationUser> {
         public BOMLinkContext(DbContextOptions<BOMLinkContext> options) : base(options) { }
 
@@ -23,114 +22,9 @@ namespace BOMLink.Data {
         public DbSet<Status> Status { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierManufacturer> SupplierManufacturer { get; set; }
-        //public DbSet<User> Users { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            //// ✅ Explicitly define primary key for IdentityUserRole<string>
-            //modelBuilder.Entity<IdentityUserRole<string>>()
-            //    .HasKey(ur => new { ur.UserId, ur.RoleId });
-
-            //modelBuilder.Entity<IdentityUserClaim<string>>()
-            //    .HasKey(uc => uc.Id);
-
-            //modelBuilder.Entity<IdentityUserLogin<string>>()
-            //    .HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
-
-            //modelBuilder.Entity<IdentityRoleClaim<string>>()
-            //    .HasKey(rc => rc.Id);
-
-            //modelBuilder.Entity<IdentityUserToken<string>>()
-            //    .HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
-
-            //// Seed Roles First
-            //var adminRole = new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN" };
-            //var userRole = new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER" };
-
-            //modelBuilder.Entity<IdentityRole>().HasData(adminRole, userRole);
-
-            //var adminUser = new ApplicationUser {
-            //    Id = "1001", // IdentityUser uses string ID
-            //    UserName = "admin",
-            //    NormalizedUserName = "ADMIN",
-            //    Email = "admin@bomlink.com",
-            //    NormalizedEmail = "ADMIN@BOMLINK.COM",
-            //    FirstName = "Admin",
-            //    LastName = "User",
-            //    PasswordHash = "AQAAAAEAACcQAAAAEHnE9fMb0Et5ngudI8wg/Y9VWfcGiDT/COpFo6rNX7HGAgP3cWN5AZrw4F++0UrcDw=="
-            //};
-
-            //var normalUser = new ApplicationUser {
-            //    Id = "1002",
-            //    UserName = "JDS",
-            //    NormalizedUserName = "JDS",
-            //    Email = "user@bomlink.com",
-            //    NormalizedEmail = "USER@BOMLINK.COM",
-            //    FirstName = "JDS",
-            //    LastName = "User",
-            //    PasswordHash = "AQAAAAEAACcQAAAAEAgMAY1MlmEX4XTuJIo8de6PXc8A607hv3SPk4IVBzD6VsEX1y0MadveFphNH7FUYg=="
-            //};
-
-            //var adminUser = new ApplicationUser {
-            //    Id = "1001",
-            //    UserName = "admin",
-            //    NormalizedUserName = "ADMIN",
-            //    Email = "admin@bomlink.com",
-            //    NormalizedEmail = "ADMIN@BOMLINK.COM",
-            //    FirstName = "Admin",
-            //    LastName = "User"
-            //    // Remove PasswordHash from HasData(), set it manually at runtime
-            //};
-
-            //var normalUser = new ApplicationUser {
-            //    Id = "1002",
-            //    UserName = "JDS",
-            //    NormalizedUserName = "JDS",
-            //    Email = "user@bomlink.com",
-            //    NormalizedEmail = "USER@BOMLINK.COM",
-            //    FirstName = "JDS",
-            //    LastName = "User"
-            //    // Remove PasswordHash from HasData(), set it manually at runtime
-            //};
-
-            //modelBuilder.Entity<ApplicationUser>().HasData(adminUser, normalUser);
-
-            //// Assign Roles
-            //modelBuilder.Entity<IdentityUserRole<string>>().HasData(
-            //    new IdentityUserRole<string> { UserId = "1001", RoleId = "1" }, // Admin Role
-            //    new IdentityUserRole<string> { UserId = "1002", RoleId = "2" }  // User Role
-            //);
-
-            //modelBuilder.Entity<User>().HasData(
-            //    new User {
-            //        UserId = 1,
-            //        Username = "admin",
-            //        HashedPassword = "AQAAAAEAACcQAAAAEK9vBdtmDOq5FQfTfIHMxK835sGFRz/FevGOC092eFhYuHK0Q9BrEG8/HpLlb7dVow==",
-            //        FirstName = "Admin",
-            //        LastName = "Admin",
-            //        RoleId = 1
-            //    },
-            //    new User {
-            //        UserId = 2,
-            //        Username = "JDS",
-            //        HashedPassword = "AQAAAAEAACcQAAAAECUKpOK7uSJAXy6UL1uAxk4kRNFkBnw1JCdknbTQ8Gp9hhE4/1oZ/9FXemSviL6SuQ==",
-            //        FirstName = "User",
-            //        LastName = "User",
-            //        RoleId = 2
-            //    }
-            //);
-
-            //modelBuilder.Entity<Role>().HasData(
-            //    new Role { RoleId = 1, Name = "HR" },
-            //    new Role { RoleId = 2, Name = "User" }
-            //);
-
-            //modelBuilder.Entity<Status>().HasData(
-            //    new Status { StatusId = 1, Name = "Open" },
-            //    new Status { StatusId = 2, Name = "Closed" },
-            //    new Status { StatusId = 3, Name = "Backorder" }
-            //);
-
             // Part data
             modelBuilder.Entity<Part>()
                 .HasIndex(m => m.PartNumber)
@@ -234,7 +128,7 @@ namespace BOMLink.Data {
             // Seed Roles
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = "1", Name = UserRole.Admin.ToString(), NormalizedName = "ADMIN" },
-                new IdentityRole { Id = "2", Name = UserRole.PM.ToString(), NormalizedName = "PROJECT MANAGER" },
+                new IdentityRole { Id = "2", Name = UserRole.PM.ToString(), NormalizedName = "PM" },
                 new IdentityRole { Id = "3", Name = UserRole.Receiving.ToString(), NormalizedName = "RECEIVING" },
                 new IdentityRole { Id = "4", Name = UserRole.Guest.ToString(), NormalizedName = "GUEST" }
             );
@@ -262,7 +156,7 @@ namespace BOMLink.Data {
                 new IdentityUserRole<string> { UserId = "1", RoleId = "1" }
             ); // Assign Admin Role
 
-            // 🔹 User 1 (Precomputed Static Hash)
+            // User 1 (Precomputed Static Hash)
             var user1 = new ApplicationUser {
                 Id = "2",
                 UserName = "JDS",

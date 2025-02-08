@@ -517,7 +517,7 @@ namespace BOMLink.Migrations
                 values: new object[,]
                 {
                     { "1", null, "Admin", "ADMIN" },
-                    { "2", null, "PM", "PROJECT MANAGER" },
+                    { "2", null, "PM", "PM" },
                     { "3", null, "Receiving", "RECEIVING" },
                     { "4", null, "Guest", "GUEST" }
                 });

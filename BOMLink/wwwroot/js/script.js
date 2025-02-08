@@ -89,8 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
-
 // Function to display a temporary message
 setTimeout(function () {
     var messageElement = document.getElementById('tempMessage');
@@ -98,3 +96,13 @@ setTimeout(function () {
         messageElement.style.display = 'none';
     }
 }, 3000);
+
+// Function to display a tooltip
+document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+

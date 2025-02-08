@@ -90,6 +90,15 @@
 										<li><a class="dropdown-item" href="@Url.Action("Index", "Supplier")">Suppliers</a></li>
 										<li><a class="dropdown-item" href="@Url.Action("Index", "Manufacturer")">Manufacturers</a></li>
 										<li><a class="dropdown-item" href="@Url.Action("Index", "SupplierManufacturer")">Supplier/Manufacturer Mapping</a></li>
+										<!-- Show Admin Panel Only for Admin Users -->
+										@if (User.IsInRole("Admin"))
+										{
+											<li class="nav-item mx-3">
+												<a class="nav-link fw-bold dropdown-item" href="@Url.Action("Users", "Admin")">
+													User Management
+												</a>
+											</li>
+										}
 									</ul>
 								</li>
 							</ul>

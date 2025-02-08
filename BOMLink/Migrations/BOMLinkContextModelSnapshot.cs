@@ -787,7 +787,7 @@ namespace BOMLink.Migrations
                         {
                             Id = "2",
                             Name = "PM",
-                            NormalizedName = "PROJECT MANAGER"
+                            NormalizedName = "PM"
                         },
                         new
                         {

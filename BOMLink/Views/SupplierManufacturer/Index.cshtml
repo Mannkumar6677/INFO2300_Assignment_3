@@ -68,7 +68,7 @@
                             <td>@link.Manufacturer.Name</td>
                             <td class="text-end">
                                 <form asp-action="Delete" asp-route-id="@link.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this link?');">
-                                    <button type="submit" class="btn btn-link text-danger p-0 border-0">
+                                    <button type="submit" class="btn btn-link text-danger p-0 border-0" data-bs-toggle="tooltip" title="Delete Link">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
