@@ -18,8 +18,6 @@ namespace BOMLink.Data {
         public DbSet<POItem> POItems { get; set; }
         public DbSet<RFQ> RFQs { get; set; }
         public DbSet<RFQItem> RFQItems { get; set; }
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<Status> Status { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierManufacturer> SupplierManufacturer { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
@@ -70,9 +68,9 @@ namespace BOMLink.Data {
                 .HasIndex(m => m.Name)
                 .IsUnique();  // Ensure unique manufacturer names
             modelBuilder.Entity<Manufacturer>().HasData(
-                new Manufacturer { ManufacturerId = 1, Name = "Schneider" },
-                new Manufacturer { ManufacturerId = 2, Name = "Phoenix Contact" },
-                new Manufacturer { ManufacturerId = 3, Name = "Mersen" }
+                new Manufacturer { Id = 1, Name = "Schneider" },
+                new Manufacturer { Id = 2, Name = "Phoenix Contact" },
+                new Manufacturer { Id = 3, Name = "Mersen" }
             );
 
             // Supplier data
@@ -133,7 +131,7 @@ namespace BOMLink.Data {
                 new IdentityRole { Id = "4", Name = UserRole.Guest.ToString(), NormalizedName = "GUEST" }
             );
 
-            // 🔹 Admin User (Precomputed Static Hash)
+            // Admin User (Precomputed Static Hash)
             var admin = new ApplicationUser {
                 Id = "1",
                 UserName = "admin",
@@ -178,32 +176,65 @@ namespace BOMLink.Data {
                 new IdentityUserRole<string> { UserId = "2", RoleId = "2" }
             ); // Assign Project Manager Role
 
-            modelBuilder.Entity<RFQItem>()
-                .Property(r => r.Price)
-                .HasPrecision(18, 2);
 
+            //BOM data
             modelBuilder.Entity<BOM>()
-                .HasOne(b => b.User)
+                .HasOne(b => b.CreatedBy)
                 .WithMany(u => u.BOMs)
                 .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
+            modelBuilder.Entity<BOM>()
+                .Property(b => b.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<BOM>()
+                .Property(b => b.Version)
+                .HasPrecision(4, 1);
             modelBuilder.Entity<BOM>()
                 .HasMany(bom => bom.BOMItems)
                 .WithOne(bi => bi.BOM)
                 .HasForeignKey(bi => bi.BOMId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BOM>().HasData(
+                new BOM {
+                    Id = 1,
+                    JobId = 1,
+                    Description = "Main Electrical Panel Assembly",
+                    UserId = "1", // Admin User
+                    Status = BOMStatus.Draft,
+                    Version = 1.0m,
+                    CreatedAt = new DateTime(2024, 02, 01, 10, 00, 00), // Static Date
+                    UpdatedAt = new DateTime(2024, 02, 05, 15, 30, 00)  // Static Date
+                },
+                new BOM {
+                    Id = 2,
+                    JobId = 2,
+                    Description = "Control Cabinet Wiring",
+                    UserId = "2", // Project Manager
+                    Status = BOMStatus.PendingApproval,
+                    Version = 1.0m,
+                    CreatedAt = new DateTime(2024, 01, 28, 09, 45, 00), // Static Date
+                    UpdatedAt = new DateTime(2024, 02, 02, 12, 15, 00)  // Static Date
+                },
+                new BOM {
+                    Id = 3,
+                    CustomerId = 1,
+                    Description = "Power Distribution System",
+                    UserId = "2", // Project Manager
+                    Status = BOMStatus.Approved,
+                    Version = 1.1m,
+                    CreatedAt = new DateTime(2024, 01, 20, 14, 00, 00), // Static Date
+                    UpdatedAt = new DateTime(2024, 02, 01, 08, 30, 00)  // Static Date
+                }
+            );
+
+            modelBuilder.Entity<RFQItem>()
+                .Property(r => r.Price)
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<RFQ>()
                 .HasOne(b => b.User)
                 .WithMany(u => u.RFQs)
                 .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<RFQ>()
-                .HasOne(rfq => rfq.Status)
-                .WithMany()
-                .HasForeignKey(rfq => rfq.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RFQ>()
@@ -216,12 +247,6 @@ namespace BOMLink.Data {
                 .HasOne(b => b.User)
                 .WithMany(u => u.POs)
                 .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<PO>()
-                .HasOne(po => po.Status)
-                .WithMany()
-                .HasForeignKey(po => po.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PO>()
@@ -239,6 +264,13 @@ namespace BOMLink.Data {
             base.OnModelCreating(modelBuilder);
         }
 
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
+            var entries = ChangeTracker.Entries<BOM>().Where(e => e.State == EntityState.Modified);
+            foreach (var entry in entries) {
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
 
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }

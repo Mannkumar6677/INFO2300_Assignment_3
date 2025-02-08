@@ -12,6 +12,7 @@
 * Aline Sathler Delfino, 2025.02.05: User application using AspNetCore.Identity.
 * Aline Sathler Delfino, 2025.02.06: User settings, Profile Picture, User Roles.
 * Aline Sathler Delfino, 2025.02.07: User management, User registration, tooltips for buttons and uniform buttons.
+* Aline Sathler Delfino, 2025.02.08: User management: BOM: Model and Index.
 */
 
 using Microsoft.AspNetCore.Identity;

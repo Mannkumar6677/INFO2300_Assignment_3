@@ -9,8 +9,6 @@ namespace BOMLink.Models {
         public Supplier Supplier { get; set; }
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }
-        public int StatusId { get; set; }
-        public Status Status { get; set; }
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]

@@ -3,7 +3,8 @@
 namespace BOMLink.Models {
     public class Manufacturer {
         #region Properties
-        public int ManufacturerId { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "Supplier name is required.")]
         [StringLength(50, ErrorMessage = "Supplier name cannot exceed 50 characters.")]

@@ -3,6 +3,7 @@
 namespace BOMLink.Models {
     public class Supplier {
         #region Properties
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Please enter an unique supplier name.")]

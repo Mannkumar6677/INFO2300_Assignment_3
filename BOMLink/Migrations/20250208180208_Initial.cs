@@ -81,39 +81,13 @@ namespace BOMLink.Migrations
                 name: "Manufacturers",
                 columns: table => new
                 {
-                    ManufacturerId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Manufacturers", x => x.ManufacturerId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    RoleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.RoleId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Status",
-                columns: table => new
-                {
-                    StatusId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Status", x => x.StatusId);
+                    table.PrimaryKey("PK_Manufacturers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -292,7 +266,7 @@ namespace BOMLink.Migrations
                         name: "FK_Parts_Manufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
                         principalTable: "Manufacturers",
-                        principalColumn: "ManufacturerId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -305,7 +279,6 @@ namespace BOMLink.Migrations
                     SupplierId = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -316,12 +289,6 @@ namespace BOMLink.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RFQs_Status_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Status",
-                        principalColumn: "StatusId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_RFQs_Suppliers_SupplierId",
@@ -347,7 +314,7 @@ namespace BOMLink.Migrations
                         name: "FK_SupplierManufacturer_Manufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
                         principalTable: "Manufacturers",
-                        principalColumn: "ManufacturerId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SupplierManufacturer_Suppliers_SupplierId",
@@ -363,10 +330,15 @@ namespace BOMLink.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    JobId = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    JobId = table.Column<int>(type: "int", nullable: true),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Version = table.Column<decimal>(type: "decimal(4,1)", precision: 4, scale: 1, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -378,11 +350,15 @@ namespace BOMLink.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_BOMs_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_BOMs_Jobs_JobId",
                         column: x => x.JobId,
                         principalTable: "Jobs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -392,7 +368,6 @@ namespace BOMLink.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RFQId = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -411,12 +386,6 @@ namespace BOMLink.Migrations
                         principalTable: "RFQs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_POs_Status_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Status",
-                        principalColumn: "StatusId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -485,8 +454,7 @@ namespace BOMLink.Migrations
                     RFQId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     QuantityReceived = table.Column<int>(type: "int", nullable: false),
-                    LeadTime = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false)
+                    LeadTime = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -503,12 +471,6 @@ namespace BOMLink.Migrations
                         principalTable: "RFQItems",
                         principalColumn: "RFQItemId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_POItems_Status_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Status",
-                        principalColumn: "StatusId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -543,7 +505,7 @@ namespace BOMLink.Migrations
 
             migrationBuilder.InsertData(
                 table: "Manufacturers",
-                columns: new[] { "ManufacturerId", "Name" },
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
                     { 1, "Schneider" },
@@ -569,6 +531,11 @@ namespace BOMLink.Migrations
                     { "1", "1" },
                     { "2", "2" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "BOMs",
+                columns: new[] { "Id", "CreatedAt", "CustomerId", "Description", "JobId", "Notes", "Status", "UpdatedAt", "UserId", "Version" },
+                values: new object[] { 3, new DateTime(2024, 1, 20, 14, 0, 0, 0, DateTimeKind.Unspecified), 1, "Power Distribution System", null, null, "Approved", new DateTime(2024, 2, 1, 8, 30, 0, 0, DateTimeKind.Unspecified), "2", 1.1m });
 
             migrationBuilder.InsertData(
                 table: "Jobs",
@@ -600,6 +567,15 @@ namespace BOMLink.Migrations
                     { 3, 3, 2 },
                     { 4, 1, 3 },
                     { 5, 3, 3 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "BOMs",
+                columns: new[] { "Id", "CreatedAt", "CustomerId", "Description", "JobId", "Notes", "Status", "UpdatedAt", "UserId", "Version" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified), null, "Main Electrical Panel Assembly", 1, null, "Draft", new DateTime(2024, 2, 5, 15, 30, 0, 0, DateTimeKind.Unspecified), "1", 1.0m },
+                    { 2, new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified), null, "Control Cabinet Wiring", 2, null, "PendingApproval", new DateTime(2024, 2, 2, 12, 15, 0, 0, DateTimeKind.Unspecified), "2", 1.0m }
                 });
 
             migrationBuilder.CreateIndex(
@@ -650,6 +626,11 @@ namespace BOMLink.Migrations
                 name: "IX_BOMItems_PartId",
                 table: "BOMItems",
                 column: "PartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BOMs_CustomerId",
+                table: "BOMs",
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BOMs_JobId",
@@ -717,19 +698,9 @@ namespace BOMLink.Migrations
                 column: "RFQId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_POItems_StatusId",
-                table: "POItems",
-                column: "StatusId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_POs_RFQId",
                 table: "POs",
                 column: "RFQId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_POs_StatusId",
-                table: "POs",
-                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_POs_UserId",
@@ -745,11 +716,6 @@ namespace BOMLink.Migrations
                 name: "IX_RFQItems_RFQId",
                 table: "RFQItems",
                 column: "RFQId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RFQs_StatusId",
-                table: "RFQs",
-                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RFQs_SupplierId",
@@ -809,9 +775,6 @@ namespace BOMLink.Migrations
                 name: "POItems");
 
             migrationBuilder.DropTable(
-                name: "Roles");
-
-            migrationBuilder.DropTable(
                 name: "SupplierManufacturer");
 
             migrationBuilder.DropTable(
@@ -843,9 +806,6 @@ namespace BOMLink.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Status");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");

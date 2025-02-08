@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250208025924_Initial")]
+    [Migration("20250208180208_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -158,27 +158,83 @@ namespace BOMLink.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("JobId")
+                    b.Property<int?>("JobId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<decimal>("Version")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("decimal(4,1)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("JobId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("BOMs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Main Electrical Panel Assembly",
+                            JobId = 1,
+                            Status = "Draft",
+                            UpdatedAt = new DateTime(2024, 2, 5, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "1",
+                            Version = 1.0m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Control Cabinet Wiring",
+                            JobId = 2,
+                            Status = "PendingApproval",
+                            UpdatedAt = new DateTime(2024, 2, 2, 12, 15, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "2",
+                            Version = 1.0m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2024, 1, 20, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            CustomerId = 1,
+                            Description = "Power Distribution System",
+                            Status = "Approved",
+                            UpdatedAt = new DateTime(2024, 2, 1, 8, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "2",
+                            Version = 1.1m
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.BOMItem", b =>
@@ -355,18 +411,18 @@ namespace BOMLink.Migrations
 
             modelBuilder.Entity("BOMLink.Models.Manufacturer", b =>
                 {
-                    b.Property<int>("ManufacturerId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ManufacturerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("ManufacturerId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -376,17 +432,17 @@ namespace BOMLink.Migrations
                     b.HasData(
                         new
                         {
-                            ManufacturerId = 1,
+                            Id = 1,
                             Name = "Schneider"
                         },
                         new
                         {
-                            ManufacturerId = 2,
+                            Id = 2,
                             Name = "Phoenix Contact"
                         },
                         new
                         {
-                            ManufacturerId = 3,
+                            Id = 3,
                             Name = "Mersen"
                         });
                 });
@@ -405,9 +461,6 @@ namespace BOMLink.Migrations
                     b.Property<int>("RFQId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -415,8 +468,6 @@ namespace BOMLink.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RFQId");
-
-                    b.HasIndex("StatusId");
 
                     b.HasIndex("UserId");
 
@@ -446,16 +497,11 @@ namespace BOMLink.Migrations
                     b.Property<int>("RFQId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("POId");
 
                     b.HasIndex("RFQId");
-
-                    b.HasIndex("StatusId");
 
                     b.ToTable("POItems");
                 });
@@ -541,9 +587,6 @@ namespace BOMLink.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
 
@@ -552,8 +595,6 @@ namespace BOMLink.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StatusId");
 
                     b.HasIndex("SupplierId");
 
@@ -593,40 +634,6 @@ namespace BOMLink.Migrations
                     b.HasIndex("RFQId");
 
                     b.ToTable("RFQItems");
-                });
-
-            modelBuilder.Entity("BOMLink.Models.Role", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RoleId");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("BOMLink.Models.Status", b =>
-                {
-                    b.Property<int>("StatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StatusId");
-
-                    b.ToTable("Status");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Supplier", b =>
@@ -926,21 +933,25 @@ namespace BOMLink.Migrations
 
             modelBuilder.Entity("BOMLink.Models.BOM", b =>
                 {
+                    b.HasOne("BOMLink.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("BOMLink.Models.Job", "Job")
                         .WithMany()
-                        .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("JobId");
 
-                    b.HasOne("BOMLink.Models.ApplicationUser", "User")
+                    b.HasOne("BOMLink.Models.ApplicationUser", "CreatedBy")
                         .WithMany("BOMs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Job");
+                    b.Navigation("CreatedBy");
 
-                    b.Navigation("User");
+                    b.Navigation("Customer");
+
+                    b.Navigation("Job");
                 });
 
             modelBuilder.Entity("BOMLink.Models.BOMItem", b =>
@@ -989,12 +1000,6 @@ namespace BOMLink.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BOMLink.Models.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("BOMLink.Models.ApplicationUser", "User")
                         .WithMany("POs")
                         .HasForeignKey("UserId")
@@ -1002,8 +1007,6 @@ namespace BOMLink.Migrations
                         .IsRequired();
 
                     b.Navigation("RFQ");
-
-                    b.Navigation("Status");
 
                     b.Navigation("User");
                 });
@@ -1022,17 +1025,9 @@ namespace BOMLink.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BOMLink.Models.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("PO");
 
                     b.Navigation("RFQItem");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("BOMLink.Models.Part", b =>
@@ -1048,12 +1043,6 @@ namespace BOMLink.Migrations
 
             modelBuilder.Entity("BOMLink.Models.RFQ", b =>
                 {
-                    b.HasOne("BOMLink.Models.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("BOMLink.Models.Supplier", "Supplier")
                         .WithMany()
                         .HasForeignKey("SupplierId")
@@ -1065,8 +1054,6 @@ namespace BOMLink.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Status");
 
                     b.Navigation("Supplier");
 

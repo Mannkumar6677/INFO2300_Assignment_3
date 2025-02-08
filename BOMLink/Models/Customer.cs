@@ -3,6 +3,7 @@
 namespace BOMLink.Models {
     public class Customer {
         #region Properties
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Please enter a customer name.")]

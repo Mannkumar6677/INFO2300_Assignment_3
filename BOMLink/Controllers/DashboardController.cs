@@ -14,8 +14,10 @@ namespace BOMLink.Controllers {
         public IActionResult Index() {
             var dashboardData = new {
                 TotalBOMs = _context.BOMs.Count(),
-                OpenRFQs = _context.RFQs.Count(r => r.StatusId == 1),
-                PendingPOs = _context.POs.Count(p => p.StatusId == 1),
+                //OpenRFQs = _context.RFQs.Count(r => r.StatusId == 1),
+                //PendingPOs = _context.POs.Count(p => p.StatusId == 1),
+                OpenRFQs = 0,
+                PendingPOs = 0,
                 PackingSlipMismatches = _context.POItems.Count(pi => pi.QuantityReceived < pi.Quantity)
             };
 

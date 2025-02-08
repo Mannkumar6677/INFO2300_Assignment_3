@@ -307,7 +307,7 @@ namespace BOMLink.Controllers {
                     _context.Parts.Add(new Part {
                         PartNumber = partNumber,
                         Description = description,
-                        ManufacturerId = manufacturer.ManufacturerId,
+                        ManufacturerId = manufacturer.Id,
                         Unit = unit,
                         Labour = labour
                     });
@@ -365,7 +365,7 @@ namespace BOMLink.Controllers {
                     _context.Parts.Add(new Part {
                         PartNumber = partNumber,
                         Description = description,
-                        ManufacturerId = manufacturer.ManufacturerId,
+                        ManufacturerId = manufacturer.Id,
                         Unit = unit,
                         Labour = labour
                     });

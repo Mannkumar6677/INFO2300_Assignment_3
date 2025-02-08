@@ -7,8 +7,6 @@ namespace BOMLink.Models {
         public int Id { get; set; }
         public int RFQId { get; set; }
         public RFQ RFQ { get; set; }
-        public int StatusId { get; set; }
-        public Status Status { get; set; }
         public DateTime Date { get; set; }
 
         // Assigned User (Automatically Captured from Logged-In User)

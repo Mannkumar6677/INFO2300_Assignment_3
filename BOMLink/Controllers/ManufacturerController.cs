@@ -88,7 +88,7 @@ namespace BOMLink.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ManufacturerId, Name")] Manufacturer manufacturer) {
-            if (id != manufacturer.ManufacturerId) return NotFound();
+            if (id != manufacturer.Id) return NotFound();
 
             if (_context.Manufacturers.Any(m => m.Name == manufacturer.Name)) {
                 TempData["Error"] = "Manufacturer name must be unique.";
@@ -101,7 +101,7 @@ namespace BOMLink.Controllers {
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Manufacturer edited successfully.";
                 } catch (DbUpdateConcurrencyException) {
-                    if (!_context.Manufacturers.Any(e => e.ManufacturerId == id))
+                    if (!_context.Manufacturers.Any(e => e.Id == id))
                         return NotFound();
                     else
                         throw;
@@ -118,7 +118,7 @@ namespace BOMLink.Controllers {
                 return RedirectToAction("Index");
             }
 
-            var manufacturer = await _context.Manufacturers.FirstOrDefaultAsync(m => m.ManufacturerId == id);
+            var manufacturer = await _context.Manufacturers.FirstOrDefaultAsync(m => m.Id == id);
             if (manufacturer == null) {
                 TempData["Error"] = "Manufacturer not found.";
                 return RedirectToAction("Index");
@@ -155,7 +155,7 @@ namespace BOMLink.Controllers {
             csvBuilder.AppendLine("ManufacturerId,Name");
 
             foreach (var manufacturer in manufacturers) {
-                csvBuilder.AppendLine($"{manufacturer.ManufacturerId},{manufacturer.Name}");
+                csvBuilder.AppendLine($"{manufacturer.Id},{manufacturer.Name}");
             }
 
             return File(Encoding.UTF8.GetBytes(csvBuilder.ToString()), "text/csv", "Manufacturers.csv");

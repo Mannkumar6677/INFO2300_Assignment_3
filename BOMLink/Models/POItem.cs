@@ -9,8 +9,6 @@
         public int Quantity { get; set; }
         public int QuantityReceived { get; set; }
         public int LeadTime { get; set; }
-        public int StatusId { get; set; }
-        public Status Status { get; set; }
         #endregion
     }
 }
