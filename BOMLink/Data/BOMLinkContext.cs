@@ -39,9 +39,9 @@ namespace BOMLink.Data {
                 .HasForeignKey(p => p.ManufacturerId)
                 .OnDelete(DeleteBehavior.Restrict); // Define foreign key relationship with Manufacturer
             modelBuilder.Entity<Part>().HasData(
-                new Part { Id = 1, PartNumber = "P1001", Description = "Circuit Breaker", Labour = 2.5m, Unit = UnitType.each, ManufacturerId = 1 },
-                new Part { Id = 2, PartNumber = "P1002", Description = "Relay", Labour = 1.0m, Unit = UnitType.each, ManufacturerId = 2 },
-                new Part { Id = 3, PartNumber = "P1003", Description = "Switch", Labour = 0.5m, Unit = UnitType.each, ManufacturerId = 3 }
+                new Part { Id = 1, PartNumber = "P1001", Description = "Circuit Breaker", Labour = 2.5m, Unit = UnitType.E, ManufacturerId = 1 },
+                new Part { Id = 2, PartNumber = "P1002", Description = "Relay", Labour = 1.0m, Unit = UnitType.E, ManufacturerId = 2 },
+                new Part { Id = 3, PartNumber = "P1003", Description = "Switch", Labour = 0.5m, Unit = UnitType.E, ManufacturerId = 3 }
             );
 
             // Job data
@@ -200,6 +200,9 @@ namespace BOMLink.Data {
                 .HasForeignKey(r => r.BOMId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent deleting BOM if used in RFQ
             modelBuilder.Entity<BOM>()
+                .Property(b => b.UpdatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+            modelBuilder.Entity<BOM>()
                 .ToTable(t => t.HasCheckConstraint("CK_BOM_JobOrCustomer", "(JobId IS NOT NULL AND CustomerId IS NULL) OR (JobId IS NULL AND CustomerId IS NOT NULL)"));
             modelBuilder.Entity<BOM>().HasData(
                 new BOM {
@@ -242,7 +245,7 @@ namespace BOMLink.Data {
                 .OnDelete(DeleteBehavior.Cascade); // Cascade delete BOM items when BOM is deleted.
             modelBuilder.Entity<BOMItem>()
                 .HasOne(bi => bi.Part)
-                .WithMany()
+                .WithMany(p => p.BOMItems)
                 .HasForeignKey(bi => bi.PartId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent accidental deletion of referenced Parts.
             modelBuilder.Entity<BOMItem>().HasData(

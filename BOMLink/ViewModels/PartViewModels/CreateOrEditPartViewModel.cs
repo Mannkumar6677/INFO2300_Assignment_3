@@ -1,9 +1,8 @@
 ﻿using BOMLink.Models;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BOMLink.ViewModels.PartViewModels {
-    public class PartFormViewModel {
+    public class CreateOrEditPartViewModel {
         #region Properties
         public int? Id { get; set; } // Nullable for Create
 
@@ -17,7 +16,7 @@ namespace BOMLink.ViewModels.PartViewModels {
         public decimal Labour { get; set; }
 
         [Required(ErrorMessage = "Please select a unit.")]
-        public UnitType Unit { get; set; } // ✅ Enum for Unit
+        public UnitType Unit { get; set; } // Enum for Unit
 
         [Required(ErrorMessage = "Please select a manufacturer.")]
         public int ManufacturerId { get; set; }

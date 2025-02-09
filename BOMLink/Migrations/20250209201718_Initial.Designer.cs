@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250209033513_Initial")]
+    [Migration("20250209201718_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -181,7 +181,9 @@ namespace BOMLink.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -600,7 +602,7 @@ namespace BOMLink.Migrations
                             Labour = 2.5m,
                             ManufacturerId = 1,
                             PartNumber = "P1001",
-                            Unit = "each"
+                            Unit = "E"
                         },
                         new
                         {
@@ -609,7 +611,7 @@ namespace BOMLink.Migrations
                             Labour = 1.0m,
                             ManufacturerId = 2,
                             PartNumber = "P1002",
-                            Unit = "each"
+                            Unit = "E"
                         },
                         new
                         {
@@ -618,7 +620,7 @@ namespace BOMLink.Migrations
                             Labour = 0.5m,
                             ManufacturerId = 3,
                             PartNumber = "P1003",
-                            Unit = "each"
+                            Unit = "E"
                         });
                 });
 
@@ -1017,7 +1019,7 @@ namespace BOMLink.Migrations
                         .IsRequired();
 
                     b.HasOne("BOMLink.Models.Part", "Part")
-                        .WithMany()
+                        .WithMany("BOMItems")
                         .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1243,6 +1245,11 @@ namespace BOMLink.Migrations
             modelBuilder.Entity("BOMLink.Models.PO", b =>
                 {
                     b.Navigation("POItems");
+                });
+
+            modelBuilder.Entity("BOMLink.Models.Part", b =>
+                {
+                    b.Navigation("BOMItems");
                 });
 
             modelBuilder.Entity("BOMLink.Models.RFQ", b =>

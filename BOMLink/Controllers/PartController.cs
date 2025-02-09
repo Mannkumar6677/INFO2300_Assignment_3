@@ -1,6 +1,5 @@
 ﻿using BOMLink.Data;
 using BOMLink.Models;
-using BOMLink.ViewModels;
 using CsvHelper.Configuration;
 using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
@@ -8,10 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Tokens;
 using BOMLink.ViewModels.PartViewModels;
 
 namespace BOMLink.Controllers {
@@ -62,107 +58,72 @@ namespace BOMLink.Controllers {
             return View(viewModel);
         }
 
-
-        // GET: Part/Create
+        // GET: Part/CreateOrEdit/{id?}
         [HttpGet]
-        public IActionResult Create() {
-            var viewModel = new PartFormViewModel {
-                Manufacturers = _context.Manufacturers.ToList() // Load manufacturers for dropdown
+        public async Task<IActionResult> CreateOrEdit(int? id) {
+            var viewModel = new CreateOrEditPartViewModel {
+                Manufacturers = await _context.Manufacturers.ToListAsync()
             };
+
+            if (id.HasValue) // Editing an existing part
+            {
+                var part = await _context.Parts.FindAsync(id);
+                if (part == null) return NotFound();
+
+                viewModel.Id = part.Id;
+                viewModel.PartNumber = part.PartNumber;
+                viewModel.Description = part.Description;
+                viewModel.Labour = part.Labour;
+                viewModel.Unit = part.Unit;
+                viewModel.ManufacturerId = part.ManufacturerId;
+            }
 
             return View(viewModel);
         }
 
-        // POST: Part/Create
+        // POST: Part/CreateOrEdit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(PartFormViewModel viewModel) {
+        public async Task<IActionResult> CreateOrEdit(CreateOrEditPartViewModel viewModel) {
             if (!ModelState.IsValid) {
-                viewModel.Manufacturers = _context.Manufacturers.ToList(); // Reload dropdown
+                viewModel.Manufacturers = await _context.Manufacturers.ToListAsync();
                 return View(viewModel);
             }
 
-            // Ensure part number is unique
-            if (_context.Parts.Any(p => p.PartNumber == viewModel.PartNumber)) {
+            bool partExists = _context.Parts.Any(p => p.PartNumber == viewModel.PartNumber && p.Id != viewModel.Id);
+            if (partExists) {
                 TempData["Error"] = "Part number must be unique.";
+                viewModel.Manufacturers = await _context.Manufacturers.ToListAsync();
                 return View(viewModel);
             }
 
-            var part = new Part {
-                PartNumber = viewModel.PartNumber,
-                Description = viewModel.Description,
-                Labour = viewModel.Labour,
-                Unit = viewModel.Unit,
-                ManufacturerId = viewModel.ManufacturerId
-            };
+            if (viewModel.Id == null) // Creating a new part
+            {
+                var newPart = new Part {
+                    PartNumber = viewModel.PartNumber,
+                    Description = viewModel.Description,
+                    Labour = viewModel.Labour,
+                    Unit = viewModel.Unit,
+                    ManufacturerId = viewModel.ManufacturerId
+                };
+                _context.Parts.Add(newPart);
+                TempData["Success"] = "Part created successfully.";
+            } else // Editing an existing part
+              {
+                var existingPart = await _context.Parts.FindAsync(viewModel.Id);
+                if (existingPart == null) return NotFound();
 
-            _context.Parts.Add(part);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+                existingPart.PartNumber = viewModel.PartNumber;
+                existingPart.Description = viewModel.Description;
+                existingPart.Labour = viewModel.Labour;
+                existingPart.Unit = viewModel.Unit;
+                existingPart.ManufacturerId = viewModel.ManufacturerId;
 
-        // GET: Part/Edit/{id}
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id) {
-            var part = await _context.Parts.FindAsync(id);
-            if (part == null) {
-                return NotFound();
-            }
-
-            var viewModel = new PartFormViewModel {
-                Id = part.Id,  // Using integer ID now
-                PartNumber = part.PartNumber,
-                Description = part.Description,
-                ManufacturerId = part.ManufacturerId,
-                Unit = part.Unit,
-                Labour = part.Labour,
-                Manufacturers = _context.Manufacturers.ToList() // Load manufacturers for dropdown
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: Part/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, PartFormViewModel viewModel) {
-            if (id != viewModel.Id) return NotFound();
-
-            // Check if the new part number is already taken by another part
-            bool partNumberExists = _context.Parts.Any(p => p.PartNumber == viewModel.PartNumber && p.Id != id);
-            if (partNumberExists) {
-                TempData["Error"] = "Part number must be unique.";
-                viewModel.Manufacturers = _context.Manufacturers.ToList(); // Reload manufacturer dropdown
-                return View(viewModel);
-            }
-
-            if (!ModelState.IsValid) {
-                viewModel.Manufacturers = _context.Manufacturers.ToList(); // Reload manufacturer dropdown
-                return View(viewModel);
-            }
-
-            var part = await _context.Parts.FindAsync(id);
-            if (part == null) return NotFound();
-
-            // Update part properties
-            part.PartNumber = viewModel.PartNumber;
-            part.Description = viewModel.Description;
-            part.ManufacturerId = viewModel.ManufacturerId;
-            part.Unit = viewModel.Unit;
-            part.Labour = viewModel.Labour;
-
-            try {
-                _context.Update(part);
-                await _context.SaveChangesAsync();
+                _context.Parts.Update(existingPart);
                 TempData["Success"] = "Part updated successfully.";
-            } catch (DbUpdateConcurrencyException) {
-                if (!_context.Parts.Any(e => e.Id == id)) {
-                    return NotFound();
-                } else {
-                    throw;
-                }
             }
 
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -185,6 +146,36 @@ namespace BOMLink.Controllers {
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Part/Details/{id}
+        public async Task<IActionResult> Details(int id) {
+            var part = await _context.Parts
+                .Include(p => p.Manufacturer)  // Include Manufacturer details
+                .Include(p => p.BOMItems)      // Include BOM Items using this part
+                .ThenInclude(bi => bi.BOM)     // Include BOM details
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (part == null) {
+                return NotFound();
+            }
+
+            var viewModel = new PartDetailsViewModel {
+                Id = part.Id,
+                PartNumber = part.PartNumber,
+                Description = part.Description,
+                Manufacturer = part.Manufacturer?.Name ?? "N/A",
+                Unit = part.Unit.ToString(),
+                Labour = part.Labour,
+                BOMItems = part.BOMItems.Select(bi => new PartBOMItemViewModel {
+                    BOMNumber = $"BOM-{bi.BOMId:D6}",
+                    BOMDescription = bi.BOM.Description,
+                    BOMStatus = bi.BOM.Status.ToString(),
+                    QuantityUsed = bi.Quantity
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // GET: Part/ExportToCSV

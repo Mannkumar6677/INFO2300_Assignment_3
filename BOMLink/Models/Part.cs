@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,18 +26,18 @@ namespace BOMLink.Models {
         [ForeignKey("Manufacturer")]
         public int ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; }
+
+        // Navigation Property for BOMItems
+        public ICollection<BOMItem> BOMItems { get; set; } = new List<BOMItem>();
         #endregion
     }
 
     #region Enum
     public enum UnitType {
-        each,
-        ten,
-        twenty,
-        fifty,
-        hundred,
-        meter,
-        foot,
+        E,
+        C,
+        m,
+        f
     }
     #endregion
 }

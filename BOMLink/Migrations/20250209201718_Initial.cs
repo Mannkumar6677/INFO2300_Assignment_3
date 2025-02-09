@@ -310,7 +310,7 @@ namespace BOMLink.Migrations
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Version = table.Column<decimal>(type: "decimal(4,1)", precision: 4, scale: 1, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
@@ -569,9 +569,9 @@ namespace BOMLink.Migrations
                 columns: new[] { "Id", "Description", "Labour", "ManufacturerId", "PartNumber", "Unit" },
                 values: new object[,]
                 {
-                    { 1, "Circuit Breaker", 2.5m, 1, "P1001", "each" },
-                    { 2, "Relay", 1.0m, 2, "P1002", "each" },
-                    { 3, "Switch", 0.5m, 3, "P1003", "each" }
+                    { 1, "Circuit Breaker", 2.5m, 1, "P1001", "E" },
+                    { 2, "Relay", 1.0m, 2, "P1002", "E" },
+                    { 3, "Switch", 0.5m, 3, "P1003", "E" }
                 });
 
             migrationBuilder.InsertData(

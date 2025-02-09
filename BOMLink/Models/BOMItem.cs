@@ -4,13 +4,14 @@ using System.ComponentModel.DataAnnotations;
 namespace BOMLink.Models {
     public class BOMItem {
         #region Properties
+        [Key]
         public int Id { get; set; }
 
-        // BOM Reference (Many-to-One)
+        [ForeignKey("BOM")]
         public int BOMId { get; set; }
         public BOM BOM { get; set; }
 
-        // Part Reference (Many-to-One)
+        [ForeignKey("Part")]
         public int PartId { get; set; }
         public Part Part { get; set; }
 

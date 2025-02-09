@@ -1,15 +1,20 @@
-﻿@model BOMLink.ViewModels.PartViewModels.PartFormViewModel
+﻿@model BOMLink.ViewModels.PartViewModels.CreateOrEditPartViewModel
+
 @{
-    ViewData["Title"] = "Edit Part";
+    ViewData["Title"] = Model.Id == null ? "Create Part" : "Edit Part";
+    string formAction = "CreateOrEdit";
+    string submitText = Model.Id == null ? "Create Part" : "Save Changes";
 }
 
-<h2>Edit Part</h2>
+<h2>@ViewData["Title"]</h2>
 
-<form asp-action="Edit" method="post">
+<form asp-action="@formAction" method="post">
     <input type="hidden" asp-for="Id" />
+
     <div class="mb-3">
         <label class="form-label">Part Number</label>
         <input asp-for="PartNumber" class="form-control" required />
+        <span asp-validation-for="PartNumber" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -20,10 +25,10 @@
 
     <div class="mb-3">
         <label class="form-label">Manufacturer</label>
-        <select asp-for="Id" asp-items="@(new SelectList(Model.Manufacturers, "Id", "Name"))" class="form-select">
+        <select asp-for="ManufacturerId" asp-items="@(new SelectList(Model.Manufacturers, "Id", "Name"))" class="form-select">
             <option value="">Select Manufacturer</option>
         </select>
-        <span asp-validation-for="Id" class="text-danger"></span>
+        <span asp-validation-for="ManufacturerId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
@@ -38,6 +43,6 @@
         <span asp-validation-for="Labour" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-outline-primary">Save Changes</button>
+    <button type="submit" class="btn btn-outline-primary">@submitText</button>
     <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
 </form>
