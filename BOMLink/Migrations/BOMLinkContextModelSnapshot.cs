@@ -248,11 +248,20 @@ namespace BOMLink.Migrations
                     b.Property<int>("BOMId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -261,6 +270,38 @@ namespace BOMLink.Migrations
                     b.HasIndex("PartId");
 
                     b.ToTable("BOMItems");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BOMId = 1,
+                            CreatedAt = new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Notes = "Use high-voltage-rated components",
+                            PartId = 1,
+                            Quantity = 5,
+                            UpdatedAt = new DateTime(2024, 2, 5, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BOMId = 1,
+                            CreatedAt = new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Notes = "Double-check wiring diagrams",
+                            PartId = 2,
+                            Quantity = 10,
+                            UpdatedAt = new DateTime(2024, 2, 5, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BOMId = 2,
+                            CreatedAt = new DateTime(2024, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Notes = "Ensure safety testing after installation",
+                            PartId = 3,
+                            Quantity = 8,
+                            UpdatedAt = new DateTime(2024, 2, 6, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("BOMLink.Models.Customer", b =>
@@ -975,7 +1016,7 @@ namespace BOMLink.Migrations
                     b.HasOne("BOMLink.Models.Part", "Part")
                         .WithMany()
                         .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("BOM");

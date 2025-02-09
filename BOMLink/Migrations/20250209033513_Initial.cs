@@ -342,7 +342,10 @@ namespace BOMLink.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BOMId = table.Column<int>(type: "int", nullable: false),
                     PartId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -358,7 +361,7 @@ namespace BOMLink.Migrations
                         column: x => x.PartId,
                         principalTable: "Parts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -590,6 +593,16 @@ namespace BOMLink.Migrations
                 {
                     { 1, new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified), null, "Main Electrical Panel Assembly", 1, null, "Draft", new DateTime(2024, 2, 5, 15, 30, 0, 0, DateTimeKind.Unspecified), "1", 1.0m },
                     { 2, new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified), null, "Control Cabinet Wiring", 2, null, "PendingApproval", new DateTime(2024, 2, 2, 12, 15, 0, 0, DateTimeKind.Unspecified), "2", 1.0m }
+                });
+
+            migrationBuilder.InsertData(
+                table: "BOMItems",
+                columns: new[] { "Id", "BOMId", "CreatedAt", "Notes", "PartId", "Quantity", "UpdatedAt" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Use high-voltage-rated components", 1, 5, new DateTime(2024, 2, 5, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 1, new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Double-check wiring diagrams", 2, 10, new DateTime(2024, 2, 5, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, 2, new DateTime(2024, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Ensure safety testing after installation", 3, 8, new DateTime(2024, 2, 6, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.CreateIndex(

@@ -234,6 +234,23 @@ namespace BOMLink.Data {
                 }
             );
 
+            // BOMItem data
+            modelBuilder.Entity<BOMItem>()
+                .HasOne(bi => bi.BOM)
+                .WithMany(b => b.BOMItems)
+                .HasForeignKey(bi => bi.BOMId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete BOM items when BOM is deleted.
+            modelBuilder.Entity<BOMItem>()
+                .HasOne(bi => bi.Part)
+                .WithMany()
+                .HasForeignKey(bi => bi.PartId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent accidental deletion of referenced Parts.
+            modelBuilder.Entity<BOMItem>().HasData(
+                new BOMItem { Id = 1, BOMId = 1, PartId = 1, Quantity = 5, Notes = "Use high-voltage-rated components", CreatedAt = new DateTime(2024, 2, 1), UpdatedAt = new DateTime(2024, 2, 5) },
+                new BOMItem { Id = 2, BOMId = 1, PartId = 2, Quantity = 10, Notes = "Double-check wiring diagrams", CreatedAt = new DateTime(2024, 2, 1), UpdatedAt = new DateTime(2024, 2, 5) },
+                new BOMItem { Id = 3, BOMId = 2, PartId = 3, Quantity = 8, Notes = "Ensure safety testing after installation", CreatedAt = new DateTime(2024, 2, 2), UpdatedAt = new DateTime(2024, 2, 6) }
+            );
+
             modelBuilder.Entity<RFQItem>()
                 .Property(r => r.Price)
                 .HasPrecision(18, 2);
@@ -272,9 +289,20 @@ namespace BOMLink.Data {
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
-            var entries = ChangeTracker.Entries<BOM>().Where(e => e.State == EntityState.Modified);
-            foreach (var entry in entries) {
+            var bomEntries = ChangeTracker.Entries<BOM>().Where(e => e.State == EntityState.Modified);
+            foreach (var entry in bomEntries) {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
+
+            var bomItemEntries = ChangeTracker.Entries<BOMItem>().Where(e => e.State == EntityState.Modified || e.State == EntityState.Added || e.State == EntityState.Deleted);
+            foreach (var entry in bomItemEntries) {
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+
+                // Also update the parent BOM's UpdatedAt
+                var parentBOM = entry.Entity.BOM;
+                if (parentBOM != null) {
+                    parentBOM.UpdatedAt = DateTime.UtcNow;
+                }
             }
 
             return base.SaveChangesAsync(cancellationToken);

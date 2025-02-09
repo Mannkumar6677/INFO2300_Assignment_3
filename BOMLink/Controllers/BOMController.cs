@@ -220,6 +220,7 @@ namespace BOMLink.Controllers {
 
         // POST: Clone BOM
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Clone(int id) {
             var existingBOM = await _context.BOMs
                 .Include(b => b.BOMItems)
@@ -230,34 +231,30 @@ namespace BOMLink.Controllers {
                 return RedirectToAction(nameof(Index));
             }
 
+            var userId = _userManager.GetUserId(User);
+
+            // Create a new BOM with cloned data
             var clonedBOM = new BOM {
-                Description = existingBOM.Description + " (Copy)",
-                CustomerId = existingBOM.CustomerId,
+                Description = existingBOM.Description + " (Clone)",
                 JobId = existingBOM.JobId,
-                UserId = existingBOM.UserId,
-                Status = BOMStatus.Draft, // Reset to Draft
+                CustomerId = existingBOM.CustomerId,
+                Status = BOMStatus.PendingApproval, // New clone should start as "Pending Approval"
+                UserId = userId,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Version = 1.0m,
+                BOMItems = existingBOM.BOMItems.Select(item => new BOMItem {
+                    PartId = item.PartId,
+                    Quantity = item.Quantity
+                }).ToList()
             };
 
             _context.BOMs.Add(clonedBOM);
             await _context.SaveChangesAsync();
 
-            // Clone Items
-            foreach (var item in existingBOM.BOMItems) {
-                var newItem = new BOMItem {
-                    BOMId = clonedBOM.Id,
-                    PartId = item.PartId,
-                    Quantity = item.Quantity
-                };
-                _context.BOMItems.Add(newItem);
-            }
-
-            await _context.SaveChangesAsync();
             TempData["Success"] = "BOM cloned successfully.";
             return RedirectToAction(nameof(Index));
         }
-
     }
 }
 

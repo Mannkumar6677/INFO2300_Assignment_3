@@ -57,8 +57,9 @@
                         <tr>
                             <td>@manufacturer.Name</td>
                             <td class="text-end">
+                                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
                                 <!-- Edit Icon -->
-                                <a href="@Url.Action("Edit", "Manufacturer", new { id = manufacturer.Id })" class="text-warning me-3" data-bs-toggle="tooltip" title="Edit Manufacturer">
+                                <a href="@Url.Action("Edit", "Manufacturer", new { id = manufacturer.Id })" class="text-warning" data-bs-toggle="tooltip" title="Edit Manufacturer">
                                     <i class="fa-solid fa-edit"></i>
                                 </a>
 
@@ -68,6 +69,7 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
+								</div>
                             </td>
                         </tr>
                     }

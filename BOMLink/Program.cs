@@ -13,6 +13,7 @@
 * Aline Sathler Delfino, 2025.02.06: User settings, Profile Picture, User Roles.
 * Aline Sathler Delfino, 2025.02.07: User management, User registration, tooltips for buttons and uniform buttons.
 * Aline Sathler Delfino, 2025.02.08: BOM: Model, Index, Create, Edit, Delete, Details, Search, Sort, Filter, Relationship and Clone.
+* Aline Sathler Delfino, 2025.02.08: BOMItem: Model, Index, Create.
 */
 
 // test clone

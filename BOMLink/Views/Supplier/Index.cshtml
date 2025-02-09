@@ -68,8 +68,9 @@
 							<td>@supplier.ContactEmail</td>
 							<td>@supplier.SupplierCode</td>
 							<td class="text-end">
+								<div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
 								<!-- Edit Icon -->
-								<a href="@Url.Action("Edit", "Supplier", new { id = supplier.Id })" class="text-warning me-3" data-bs-toggle="tooltip" title="Edit Supplier">
+								<a href="@Url.Action("Edit", "Supplier", new { id = supplier.Id })" class="text-warning" data-bs-toggle="tooltip" title="Edit Supplier">
 									<i class="fa-solid fa-edit"></i>
 								</a>
 
@@ -79,6 +80,7 @@
 										<i class="fa-solid fa-trash"></i>
 									</button>
 								</form>
+								</div>
 							</td>
 						</tr>
 					}

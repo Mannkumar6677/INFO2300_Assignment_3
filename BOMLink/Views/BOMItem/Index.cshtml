@@ -1,0 +1,86 @@
+﻿@model BOMLink.ViewModels.BOMItemViewModel
+
+@{
+	ViewData["Title"] = "BOM Items";
+}
+
+<div class="container-fluid mt-4">
+	<div class="row">
+		<!-- Sidebar Section -->
+		<aside class="col-md-3">
+			<div class="card shadow-sm p-3">
+				<h5 class="fw-bold">Actions</h5>
+
+				@if (Model.Status != "Approved")
+				{
+					<!-- Add BOM Item -->
+					<a href="@Url.Action("Create", "BOMItem", new { bomId = Model.BOMId })" class="btn btn-outline-primary w-100 mb-2">Add Item</a>
+
+					<!-- Import BOM Items -->
+					<form asp-action="Import" asp-controller="BOMItem" method="post" enctype="multipart/form-data" class="mb-2">
+						<input type="hidden" name="bomId" value="@Model.BOMId" />
+						<input type="file" name="file" class="form-control mb-2" required>
+						<button type="submit" class="btn btn-outline-success w-100">Import from CSV/Excel</button>
+					</form>
+				}
+
+				<!-- Export BOM Items -->
+				<a href="@Url.Action("Export", "BOMItem", new { bomId = Model.BOMId, format = "csv" })" class="btn btn-outline-secondary w-100 mb-2">Export CSV</a>
+				<a href="@Url.Action("Export", "BOMItem", new { bomId = Model.BOMId, format = "xlsx" })" class="btn btn-outline-secondary w-100">Export Excel</a>
+			</div>
+		</aside>
+
+		<!-- Main Content Section -->
+		<main class="col-md-9">
+			<h2>BOM Items for <strong>@Model.BOMNumber</strong></h2>
+			<p class="text-muted">Description: @Model.Description</p>
+
+			<!-- BOM Items Table -->
+			<table class="table mt-3">
+				<thead class="table-light">
+					<tr>
+						<th>Part Number</th>
+						<th>Description</th>
+						<th>Quantity</th>
+						<th class="text-end">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.BOMItems)
+					{
+						<tr>
+							<td>@item.PartNumber</td>
+							<td>@item.PartDescription</td>
+							<td>@item.Quantity</td>
+							<td class="text-end">
+								<div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
+									@if (Model.Status != "Approved")
+									{
+										<!-- Edit Item -->
+										<a href="@Url.Action("Edit", "BOMItem", new { id = item.Id })" class="text-warning" data-bs-toggle="tooltip" title="Edit Item">
+											<i class="fa-solid fa-edit"></i>
+										</a>
+
+										<!-- Delete Item -->
+										<form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+											  onsubmit="return confirm('Are you sure you want to delete this item?');">
+											<button type="submit" class="btn btn-link text-danger p-0 border-0" data-bs-toggle="tooltip" title="Delete Item">
+												<i class="fa-solid fa-trash"></i>
+											</button>
+										</form>
+									}
+									else
+									{
+										<span class="text-muted me-3" data-bs-toggle="tooltip" title="Approved BOMs cannot be modified">
+											<i class="fa-solid fa-lock"></i>
+										</span>
+									}
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</main>
+	</div>
+</div>
