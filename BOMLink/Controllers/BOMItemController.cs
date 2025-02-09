@@ -56,6 +56,7 @@ using System.Threading.Tasks;
 using BOMLink.Data;
 using BOMLink.Models;
 using BOMLink.ViewModels;
+using BOMLink.ViewModels.BOMItemViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -95,8 +96,9 @@ namespace BOMLink.Controllers {
             return View(viewModel);
         }
 
-        // GET: Create BOM Item
-        public async Task<IActionResult> Create(int bomId) {
+        // GET: Create or Edit BOM Item
+        [HttpGet]
+        public async Task<IActionResult> CreateOrEdit(int? id, int bomId) {
             var bom = await _context.BOMs
                 .Include(b => b.BOMItems)
                 .FirstOrDefaultAsync(b => b.Id == bomId);
@@ -105,7 +107,7 @@ namespace BOMLink.Controllers {
 
             var existingPartIds = bom.BOMItems.Select(bi => bi.PartId).ToList();
 
-            var viewModel = new CreateBOMItemViewModel {
+            var viewModel = new CreateOrEditBOMItemViewModel {
                 BOMId = bom.Id,
                 BOMNumber = $"BOM-{bom.Id:D6}",
                 ExistingPartIds = existingPartIds,
@@ -115,18 +117,27 @@ namespace BOMLink.Controllers {
                     .ToListAsync()
             };
 
+            if (id.HasValue) {
+                var bomItem = await _context.BOMItems.FirstOrDefaultAsync(bi => bi.Id == id);
+                if (bomItem == null) return NotFound();
+
+                viewModel.Id = bomItem.Id;
+                viewModel.PartId = bomItem.PartId;
+                viewModel.Quantity = bomItem.Quantity;
+                viewModel.Notes = bomItem.Notes;
+            }
+
             return View(viewModel);
         }
 
-        // POST: Create BOM Item
+        // POST: Create or Edit BOM Item
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateBOMItemViewModel model) {
+        public async Task<IActionResult> CreateOrEdit(CreateOrEditBOMItemViewModel model) {
             ModelState.Remove("BOMNumber");
 
-            // Check if the part already exists in the BOM
             bool partExists = await _context.BOMItems
-                .AnyAsync(bi => bi.BOMId == model.BOMId && bi.PartId == model.PartId);
+                .AnyAsync(bi => bi.BOMId == model.BOMId && bi.PartId == model.PartId && bi.Id != model.Id);
 
             if (partExists) {
                 ModelState.AddModelError("PartId", "This part has already been added to the BOM.");
@@ -140,75 +151,35 @@ namespace BOMLink.Controllers {
                 return View(model);
             }
 
-            var newItem = new BOMItem {
-                BOMId = model.BOMId,
-                PartId = model.PartId,
-                Quantity = model.Quantity,
-                Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes
-            };
+            if (model.Id == 0) // Create new BOMItem
+            {
+                var newItem = new BOMItem {
+                    BOMId = model.BOMId,
+                    PartId = model.PartId,
+                    Quantity = model.Quantity,
+                    Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes
+                };
 
-            _context.BOMItems.Add(newItem);
+                _context.BOMItems.Add(newItem);
+            } else // Edit existing BOMItem
+              {
+                var existingBOMItem = await _context.BOMItems.FindAsync(model.Id);
+                if (existingBOMItem == null) return NotFound();
+
+                existingBOMItem.PartId = model.PartId;
+                existingBOMItem.Quantity = model.Quantity;
+                existingBOMItem.Notes = model.Notes;
+            }
+
             await _context.SaveChangesAsync();
 
-            // Update BOM updatedAt timestamp
             var bom = await _context.BOMs.FindAsync(model.BOMId);
             if (bom != null) {
                 bom.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
 
-            TempData["Success"] = "BOM item added successfully.";
-            return RedirectToAction("Index", new { bomId = model.BOMId });
-        }
-
-        // GET: Edit BOM Item
-        public async Task<IActionResult> Edit(int id) {
-            var bomItem = await _context.BOMItems.Include(bi => bi.BOM).FirstOrDefaultAsync(bi => bi.Id == id);
-            if (bomItem == null) return NotFound();
-
-            // Prevent editing Approved BOMs
-            if (bomItem.BOM.Status == BOMStatus.Approved) {
-                TempData["Error"] = "Cannot edit items in an Approved BOM.";
-                return RedirectToAction("Index", new { bomId = bomItem.BOMId });
-            }
-
-            var viewModel = new EditBOMItemViewModel {
-                Id = bomItem.Id,
-                BOMId = bomItem.BOMId,
-                PartId = bomItem.PartId,
-                Quantity = bomItem.Quantity,
-                AvailableParts = await _context.Parts.OrderBy(p => p.PartNumber).ToListAsync()
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: Edit BOM Item
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(EditBOMItemViewModel model) {
-            if (!ModelState.IsValid) {
-                model.AvailableParts = await _context.Parts.OrderBy(p => p.PartNumber).ToListAsync();
-                return View(model);
-            }
-
-            var bomItem = await _context.BOMItems.Include(bi => bi.BOM).FirstOrDefaultAsync(bi => bi.Id == model.Id);
-            if (bomItem == null) return NotFound();
-
-            // Prevent editing Approved BOMs
-            if (bomItem.BOM.Status == BOMStatus.Approved) {
-                TempData["Error"] = "Cannot edit items in an Approved BOM.";
-                return RedirectToAction("Index", new { bomId = model.BOMId });
-            }
-
-            bomItem.PartId = model.PartId;
-            bomItem.Quantity = model.Quantity;
-            bomItem.UpdatedAt = DateTime.UtcNow;
-
-            _context.Update(bomItem);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "BOM Item updated successfully.";
+            TempData["Success"] = "BOM item saved successfully.";
             return RedirectToAction("Index", new { bomId = model.BOMId });
         }
 

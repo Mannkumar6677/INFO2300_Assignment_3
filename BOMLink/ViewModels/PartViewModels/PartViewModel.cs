@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace BOMLink.ViewModels {
+namespace BOMLink.ViewModels.PartViewModels {
     public class PartViewModel {
         #region Properties
         public List<Part> Parts { get; set; } = new();

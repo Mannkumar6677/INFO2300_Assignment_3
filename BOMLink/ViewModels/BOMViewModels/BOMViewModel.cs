@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BOMLink.Models;
 
-namespace BOMLink.ViewModels {
+namespace BOMLink.ViewModels.BOMViewModels {
     public class BOMViewModel {
         #region Properties
         public int Id { get; set; }

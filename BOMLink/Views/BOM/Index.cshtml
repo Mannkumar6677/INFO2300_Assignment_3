@@ -1,4 +1,4 @@
-﻿@model BOMLink.ViewModels.BOMViewModel
+﻿@model BOMLink.ViewModels.BOMViewModels.BOMViewModel
 
 @{
 	ViewData["Title"] = "Bill of Materials";
@@ -96,7 +96,11 @@
 					@foreach (var bom in Model.BOMs)
 					{
 						<tr>
-							<td>@bom.BOMNumber</td>
+							<td>
+								<a href="@Url.Action("Details", "BOM", new { id = bom.Id })">
+									@bom.BOMNumber
+								</a>
+							</td>
 							<td>@bom.Description</td>
 							<td>
 								<span class="badge @(bom.Status == "Draft" ? "bg-secondary"

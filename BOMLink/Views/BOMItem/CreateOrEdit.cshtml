@@ -1,19 +1,21 @@
-﻿@* @model BOMLink.ViewModels.CreateBOMItemViewModel
+﻿@model BOMLink.ViewModels.BOMItemViewModels.CreateOrEditBOMItemViewModel
 
 @{
-	ViewData["Title"] = "Add BOM Item";
+    ViewData["Title"] = Model.Id == 0 ? "Add BOM Item" : "Edit BOM Item";
 }
 
 <div class="container mt-4">
-	<h2>Add BOM Item</h2>
-	<h5 class="text-muted">BOM Number: @Model.BOMNumber</h5>
-    <form asp-action="Create" method="post">
+    <h2>@(Model.Id == 0 ? "Add BOM Item" : "Edit BOM Item")</h2>
+    <h5 class="text-muted">BOM Number: @Model.BOMNumber</h5>
+
+    <form asp-action="CreateOrEdit" method="post">
         <input type="hidden" asp-for="BOMId" />
+        <input type="hidden" asp-for="Id" />
 
         <div class="mb-3">
             <label class="form-label fw-bold">Select Part</label>
             <input type="text" id="partSearch" class="form-control" placeholder="Start typing a part number..." />
-            <input type="hidden" id="PartId" name="PartId" />
+            <input type="hidden" id="PartId" name="PartId" value="@Model.PartId" />
             <span class="text-danger" asp-validation-for="PartId"></span>
             <span class="text-danger" id="duplicateError" style="display:none;">🚫 This part is already in the BOM.</span>
         </div>
@@ -31,43 +33,32 @@
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-outline-primary" id="submitBtn">Add Item</button>
+            <button type="submit" class="btn btn-outline-primary" id="submitBtn">Save</button>
             <a asp-action="Index" asp-route-bomId="@Model.BOMId" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>
 
-    @section Scripts {
-    <!-- ✅ Ensure jQuery is loaded -->
+@section Scripts {
+    <!-- Load jQuery (ensure it's loaded first) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-    <!-- ✅ Ensure jQuery UI is loaded -->
+    <!-- Load jQuery UI for autocomplete -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
-    <!-- ✅ Load jQuery UI Styles -->
+    <!-- Load jQuery UI Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" />
 
     <script>
         var existingParts = @Html.Raw(Json.Serialize(Model.ExistingPartIds));
-        console.log("🚀 Existing parts (Frontend):", existingParts);
-
         $(document).ready(function () {
-            if (!$.ui || !$.ui.autocomplete) {
-                console.error("jQuery UI Autocomplete is not loaded!");
-                return;
-            }
-
-            // Initialize autocomplete
             $("#partSearch").autocomplete({
                 source: function (request, response) {
-                    console.log("Autocomplete triggered with term:", request.term);
-
                     $.ajax({
                         url: "@Url.Action("SearchParts", "BOMItem")",
                         dataType: "json",
                         data: { term: request.term },
                         success: function (data) {
-                            console.log("Data received:", data);
                             response($.map(data, function (item) {
                                 return {
                                     label: item.partNumber + " - " + item.description,
@@ -75,51 +66,38 @@
                                     id: item.id
                                 };
                             }));
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error fetching data:", status, error);
                         }
                     });
                 },
                 select: function (event, ui) {
-                    console.log("Selected part:", ui.item);
-
                     $("#partSearch").val(ui.item.label);
                     $("#PartId").val(ui.item.id);
-
-                    // Validate the selected part
                     validatePartSelection(ui.item.id);
-
                     return false;
                 }
             });
 
-            // Validate part selection
             function validatePartSelection(selectedPartId) {
-                selectedPartId = parseInt(selectedPartId, 10); // Convert to integer
-
+                selectedPartId = parseInt(selectedPartId, 10);
                 if (existingParts.includes(selectedPartId)) {
                     $("#duplicateError").show();
                     $("#submitBtn").prop("disabled", true);
-                    $("#PartId").val(""); // Reset value to prevent submission
+                    $("#PartId").val("");
                 } else {
                     $("#duplicateError").hide();
                     $("#submitBtn").prop("disabled", false);
                 }
             }
 
-            // Real-time validation as user types
             $("#partSearch").on("input", function () {
-                const partId = $("#PartId").val(); // Get the selected part ID
+                const partId = $("#PartId").val();
                 if (partId) {
-                    validatePartSelection(partId); // Validate the selected part
+                    validatePartSelection(partId);
                 } else {
-                    $("#duplicateError").hide(); // Hide error if no part is selected
-                    $("#submitBtn").prop("disabled", false); // Enable submit button
+                    $("#duplicateError").hide();
+                    $("#submitBtn").prop("disabled", false);
                 }
             });
         });
     </script>
 }
-
- *@

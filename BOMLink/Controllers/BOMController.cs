@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using BOMLink.Data;
 using BOMLink.Models;
 using BOMLink.ViewModels;
+using BOMLink.ViewModels.BOMItemViewModels;
+using BOMLink.ViewModels.BOMViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -216,6 +218,36 @@ namespace BOMLink.Controllers {
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int id) {
+            var bom = await _context.BOMs
+                .Include(b => b.BOMItems)
+                .ThenInclude(bi => bi.Part)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (bom == null) {
+                return NotFound();
+            }
+
+            var viewModel = new BOMDetailsViewModel {
+                BOMId = bom.Id,
+                BOMNumber = $"BOM-{bom.Id:D6}",
+                Status = bom.Status.ToString(),
+                CustomerName = bom.Customer?.Name ?? "N/A",
+                JobNumber = bom.Job?.Number ?? "N/A",
+                CreatedBy = bom.CreatedBy?.UserName ?? "Unknown User",
+                UpdatedAt = bom.UpdatedAt,
+                BOMItems = bom.BOMItems.Select(bi => new BOMItemViewModel {
+                    PartId = bi.PartId,
+                    PartNumber = bi.Part.PartNumber,
+                    Description = bi.Part.Description,
+                    Quantity = bi.Quantity,
+                    Notes = bi.Notes
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // POST: Clone BOM

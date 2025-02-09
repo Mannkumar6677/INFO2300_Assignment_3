@@ -3,9 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace BOMLink.ViewModels {
-    public class CreateBOMItemViewModel {
+namespace BOMLink.ViewModels.BOMItemViewModels {
+    public class CreateOrEditBOMItemViewModel {
         #region Properties
+        public int Id { get; set; }
         public int BOMId { get; set; }
 
         [BindNever]

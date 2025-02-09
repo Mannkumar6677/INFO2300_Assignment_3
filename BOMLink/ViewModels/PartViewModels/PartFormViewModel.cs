@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace BOMLink.ViewModels {
+namespace BOMLink.ViewModels.PartViewModels {
     public class PartFormViewModel {
         #region Properties
         public int? Id { get; set; } // Nullable for Create
