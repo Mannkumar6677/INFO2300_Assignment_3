@@ -10,7 +10,7 @@
 		<aside class="col-md-3">
 			<div class="card shadow-sm p-3">
 				<h5 class="fw-bold">Actions</h5>
-				<a href="@Url.Action("Create", "BOM")" class="btn btn-outline-primary w-100 mb-2">Add BOM</a>
+				<a href="@Url.Action("CreateOrEdit", "BOM")" class="btn btn-outline-primary w-100 mb-2">Add BOM</a>
 			</div>
 		</aside>
 
@@ -123,7 +123,7 @@
 									<!-- Edit BOM -->
 									@if (bom.Status != "Approved")
 									{
-										<a href="@Url.Action("Edit", "BOM", new { id = bom.Id })" class="text-warning" data-bs-toggle="tooltip" title="Edit">
+										<a href="@Url.Action("CreateOrEdit", "BOM", new { id = bom.Id })" class="text-warning" data-bs-toggle="tooltip" title="Edit">
 											<i class="fa-solid fa-edit"></i>
 										</a>
 									}

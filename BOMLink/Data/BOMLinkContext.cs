@@ -202,12 +202,11 @@ namespace BOMLink.Data {
             modelBuilder.Entity<BOM>()
                 .Property(b => b.UpdatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");
-            modelBuilder.Entity<BOM>()
-                .ToTable(t => t.HasCheckConstraint("CK_BOM_JobOrCustomer", "(JobId IS NOT NULL AND CustomerId IS NULL) OR (JobId IS NULL AND CustomerId IS NOT NULL)"));
             modelBuilder.Entity<BOM>().HasData(
                 new BOM {
                     Id = 1,
                     JobId = 1,
+                    CustomerId = 1,
                     Description = "Main Electrical Panel Assembly",
                     UserId = "1", // Admin User
                     Status = BOMStatus.Draft,
@@ -218,6 +217,7 @@ namespace BOMLink.Data {
                 new BOM {
                     Id = 2,
                     JobId = 2,
+                    CustomerId = 2,
                     Description = "Control Cabinet Wiring",
                     UserId = "2", // Project Manager
                     Status = BOMStatus.PendingApproval,
@@ -227,7 +227,7 @@ namespace BOMLink.Data {
                 },
                 new BOM {
                     Id = 3,
-                    CustomerId = 1,
+                    CustomerId = 3,
                     Description = "Power Distribution System",
                     UserId = "2", // Project Manager
                     Status = BOMStatus.Approved,

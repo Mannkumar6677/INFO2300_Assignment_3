@@ -7,7 +7,7 @@
 			<div class="card shadow-sm p-3">
 				<h5 class="fw-bold">Actions</h5>
 				<a asp-controller="BOMItem" asp-action="Index" asp-route-bomId="@Model.BOMId" class="btn btn-outline-primary w-100 mb-2">Manage BOM Items</a>
-				<a asp-controller="BOM" asp-action="Edit" asp-route-id="@Model.BOMId" class="btn btn-outline-warning w-100 mb-2">Edit BOM</a>
+				<a asp-controller="BOM" asp-action="CreateOrEdit" asp-route-id="@Model.BOMId" class="btn btn-outline-warning w-100 mb-2">Edit BOM</a>
 				<a asp-controller="BOM" asp-action="Index" class="btn btn-outline-secondary w-100 mb-3">Back to BOM List</a>
 			</div>
 		</aside>

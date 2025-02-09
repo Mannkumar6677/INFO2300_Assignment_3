@@ -14,7 +14,7 @@
 * Aline Sathler Delfino, 2025.02.07: User management, User registration, tooltips for buttons and uniform buttons.
 * Aline Sathler Delfino, 2025.02.08: BOM: Model, Index, Create, Edit, Delete, Details, Search, Sort, Filter, Relationship and Clone.
 * Aline Sathler Delfino, 2025.02.08: BOMItem: Model, Index, Create.
-* Aline Sathler Delfino, 2025.02.09: BOMItem: Edit, Delete, Details, Unified Create/Edit View. Part: Unified Create/Edit View and Details.
+* Aline Sathler Delfino, 2025.02.09: BOMItem: Edit, Delete, Details, Unified Create/Edit View. Part: Unified Create/Edit View and Details. BOM: Unified Create/Edit View.
 */
 
 // test clone

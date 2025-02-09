@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BOMLink.Migrations
 {
     [DbContext(typeof(BOMLinkContext))]
-    [Migration("20250209201718_Initial")]
+    [Migration("20250209211806_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -162,7 +162,7 @@ namespace BOMLink.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CustomerId")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -201,16 +201,14 @@ namespace BOMLink.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BOMs", t =>
-                        {
-                            t.HasCheckConstraint("CK_BOM_JobOrCustomer", "(JobId IS NOT NULL AND CustomerId IS NULL) OR (JobId IS NULL AND CustomerId IS NOT NULL)");
-                        });
+                    b.ToTable("BOMs");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            CustomerId = 1,
                             Description = "Main Electrical Panel Assembly",
                             JobId = 1,
                             Status = "Draft",
@@ -222,6 +220,7 @@ namespace BOMLink.Migrations
                         {
                             Id = 2,
                             CreatedAt = new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified),
+                            CustomerId = 2,
                             Description = "Control Cabinet Wiring",
                             JobId = 2,
                             Status = "PendingApproval",
@@ -233,7 +232,7 @@ namespace BOMLink.Migrations
                         {
                             Id = 3,
                             CreatedAt = new DateTime(2024, 1, 20, 14, 0, 0, 0, DateTimeKind.Unspecified),
-                            CustomerId = 1,
+                            CustomerId = 3,
                             Description = "Power Distribution System",
                             Status = "Approved",
                             UpdatedAt = new DateTime(2024, 2, 1, 8, 30, 0, 0, DateTimeKind.Unspecified),
@@ -991,7 +990,9 @@ namespace BOMLink.Migrations
                 {
                     b.HasOne("BOMLink.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BOMLink.Models.Job", "Job")
                         .WithMany()

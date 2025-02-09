@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BOMLink.Data;
 using BOMLink.Models;
-using BOMLink.ViewModels;
 using BOMLink.ViewModels.BOMItemViewModels;
 using BOMLink.ViewModels.BOMViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -94,96 +93,80 @@ namespace BOMLink.Controllers {
             return View(viewModel);
         }
 
-        // GET: Create a new BOM
-        [Authorize]
-        public async Task<IActionResult> Create() {
-            var viewModel = new CreateBOMViewModel {
+        // GET: CreateOrEdit BOM
+        public async Task<IActionResult> CreateOrEdit(int? id) {
+            var viewModel = new CreateOrEditBOMViewModel {
                 AvailableJobs = await _context.Jobs.OrderBy(j => j.Number).ToListAsync(),
                 AvailableCustomers = await _context.Customers.OrderBy(c => c.CustomerCode).ToListAsync()
             };
+
+            if (id.HasValue) {
+                var bom = await _context.BOMs.FindAsync(id.Value);
+                if (bom == null) {
+                    TempData["Error"] = "BOM not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                viewModel.Id = bom.Id;
+                viewModel.Description = bom.Description;
+                viewModel.JobId = bom.JobId;
+                viewModel.CustomerId = bom.CustomerId;
+                viewModel.Status = bom.Status;
+            }
+
             return View(viewModel);
         }
 
-        // POST: Create a new BOM
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateBOMViewModel model) {
+        public async Task<IActionResult> CreateOrEdit(int? id, CreateOrEditBOMViewModel model) {
+            if (model.CustomerId == 0) {
+                ModelState.AddModelError("CustomerId", "Please select a valid Customer from the dropdown.");
+            }
             if (!ModelState.IsValid) {
                 model.AvailableJobs = await _context.Jobs.OrderBy(j => j.Number).ToListAsync();
                 model.AvailableCustomers = await _context.Customers.OrderBy(c => c.CustomerCode).ToListAsync();
                 return View(model);
             }
 
-            var userId = _userManager.GetUserId(User);
-
-            var newBOM = new BOM {
-                Description = model.Description,
-                JobId = model.JobId,
-                CustomerId = model.CustomerId,
-                Status = model.Status,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                Version = 1.0m
-            };
-
-            _context.BOMs.Add(newBOM);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "BOM created successfully.";
-            return RedirectToAction("Index");
-        }
-
-        // GET: Edit BOM
-        public async Task<IActionResult> Edit(int id) {
-            var bom = await _context.BOMs.FindAsync(id);
-            if (bom == null) {
-                TempData["Error"] = "BOM not found.";
-                return RedirectToAction(nameof(Index));
+            // If Job is selected, use its associated Customer
+            if (model.JobId.HasValue) {
+                var job = await _context.Jobs.Include(j => j.Customer).FirstOrDefaultAsync(j => j.Id == model.JobId.Value);
+                if (job == null) {
+                    ModelState.AddModelError("JobId", "Selected Job does not exist.");
+                    return View(model);
+                }
+                model.CustomerId = job.CustomerId; // Ensure CustomerId is always set
             }
 
-            // Prevent editing if BOM is Approved
-            if (bom.Status == BOMStatus.Approved) {
-                TempData["Error"] = "Approved BOMs cannot be edited.";
-                return RedirectToAction(nameof(Index));
+            if (id.HasValue) {
+                // Editing Existing BOM
+                var existingBOM = await _context.BOMs.FindAsync(id.Value);
+                if (existingBOM == null) return NotFound();
+
+                existingBOM.Description = model.Description;
+                existingBOM.JobId = model.JobId;
+                existingBOM.CustomerId = model.CustomerId;
+                existingBOM.Status = model.Status ?? existingBOM.Status;
+                existingBOM.UpdatedAt = DateTime.UtcNow;
+            } else {
+                // Creating New BOM
+                var userId = _userManager.GetUserId(User);
+                var newBOM = new BOM {
+                    Description = model.Description,
+                    JobId = model.JobId,
+                    CustomerId = model.CustomerId,
+                    Status = model.Status ?? BOMStatus.Draft,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    Version = 1.0m
+                };
+                _context.BOMs.Add(newBOM);
             }
-
-            var viewModel = new EditBOMViewModel {
-                Id = bom.Id,
-                Description = bom.Description,
-                JobId = bom.JobId,
-                CustomerId = bom.CustomerId,
-                Status = bom.Status,
-                AvailableJobs = await _context.Jobs.OrderBy(j => j.Number).ToListAsync(),
-                AvailableCustomers = await _context.Customers.OrderBy(c => c.CustomerCode).ToListAsync()
-            };
-
-            return View(viewModel);
-        }
-
-
-        // POST: Edit BOM
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditBOMViewModel model) {
-            if (!ModelState.IsValid) {
-                model.AvailableJobs = await _context.Jobs.OrderBy(j => j.Number).ToListAsync();
-                model.AvailableCustomers = await _context.Customers.OrderBy(c => c.CustomerCode).ToListAsync();
-                return View(model);
-            }
-
-            var existingBOM = await _context.BOMs.FindAsync(id);
-            if (existingBOM == null) return NotFound();
-
-            existingBOM.Description = model.Description;
-            existingBOM.JobId = model.JobId;
-            existingBOM.CustomerId = model.CustomerId;
-            existingBOM.Status = model.Status;
-            existingBOM.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
-            TempData["Success"] = "BOM updated successfully.";
+            TempData["Success"] = id.HasValue ? "BOM updated successfully." : "BOM created successfully.";
             return RedirectToAction("Index");
         }
 
@@ -220,8 +203,11 @@ namespace BOMLink.Controllers {
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: BOM Details
         public async Task<IActionResult> Details(int id) {
             var bom = await _context.BOMs
+                .Include(b => b.Job)
+                .Include(b => b.Customer)
                 .Include(b => b.BOMItems)
                 .ThenInclude(bi => bi.Part)
                 .FirstOrDefaultAsync(b => b.Id == id);

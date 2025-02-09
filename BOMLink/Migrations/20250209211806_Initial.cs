@@ -303,7 +303,7 @@ namespace BOMLink.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     JobId = table.Column<int>(type: "int", nullable: true),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -315,7 +315,6 @@ namespace BOMLink.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BOMs", x => x.Id);
-                    table.CheckConstraint("CK_BOM_JobOrCustomer", "(JobId IS NOT NULL AND CustomerId IS NULL) OR (JobId IS NULL AND CustomerId IS NOT NULL)");
                     table.ForeignKey(
                         name: "FK_BOMs_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -326,7 +325,8 @@ namespace BOMLink.Migrations
                         name: "FK_BOMs_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BOMs_Jobs_JobId",
                         column: x => x.JobId,
@@ -552,7 +552,7 @@ namespace BOMLink.Migrations
             migrationBuilder.InsertData(
                 table: "BOMs",
                 columns: new[] { "Id", "CreatedAt", "CustomerId", "Description", "JobId", "Notes", "Status", "UpdatedAt", "UserId", "Version" },
-                values: new object[] { 3, new DateTime(2024, 1, 20, 14, 0, 0, 0, DateTimeKind.Unspecified), 1, "Power Distribution System", null, null, "Approved", new DateTime(2024, 2, 1, 8, 30, 0, 0, DateTimeKind.Unspecified), "2", 1.1m });
+                values: new object[] { 3, new DateTime(2024, 1, 20, 14, 0, 0, 0, DateTimeKind.Unspecified), 3, "Power Distribution System", null, null, "Approved", new DateTime(2024, 2, 1, 8, 30, 0, 0, DateTimeKind.Unspecified), "2", 1.1m });
 
             migrationBuilder.InsertData(
                 table: "Jobs",
@@ -591,8 +591,8 @@ namespace BOMLink.Migrations
                 columns: new[] { "Id", "CreatedAt", "CustomerId", "Description", "JobId", "Notes", "Status", "UpdatedAt", "UserId", "Version" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified), null, "Main Electrical Panel Assembly", 1, null, "Draft", new DateTime(2024, 2, 5, 15, 30, 0, 0, DateTimeKind.Unspecified), "1", 1.0m },
-                    { 2, new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified), null, "Control Cabinet Wiring", 2, null, "PendingApproval", new DateTime(2024, 2, 2, 12, 15, 0, 0, DateTimeKind.Unspecified), "2", 1.0m }
+                    { 1, new DateTime(2024, 2, 1, 10, 0, 0, 0, DateTimeKind.Unspecified), 1, "Main Electrical Panel Assembly", 1, null, "Draft", new DateTime(2024, 2, 5, 15, 30, 0, 0, DateTimeKind.Unspecified), "1", 1.0m },
+                    { 2, new DateTime(2024, 1, 28, 9, 45, 0, 0, DateTimeKind.Unspecified), 2, "Control Cabinet Wiring", 2, null, "PendingApproval", new DateTime(2024, 2, 2, 12, 15, 0, 0, DateTimeKind.Unspecified), "2", 1.0m }
                 });
 
             migrationBuilder.InsertData(

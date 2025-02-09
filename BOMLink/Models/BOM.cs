@@ -1,9 +1,5 @@
-﻿using BOMLink.Validations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace BOMLink.Models {
     public class BOM {
@@ -16,15 +12,13 @@ namespace BOMLink.Models {
         public Job? Job { get; set; }
 
         [ForeignKey("Customer")]
-        public int? CustomerId { get; set; }
-        public Customer? Customer { get; set; }
+        [Required(ErrorMessage = "A BOM must always have a Customer.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Invalid Customer selection. Please select a valid Customer.")]
+        public int CustomerId { get; set; }
+        public Customer Customer { get; set; }
 
         [Required(ErrorMessage = "Please enter a description.")]
         public string Description { get; set; }
-
-        [Required(ErrorMessage = "You must select either a Job or a Customer.")]
-        [EnsureEitherJobOrCustomerValidation]
-        public string ValidationRule => "Ensuring either Job or Customer is selected";
 
         // Assigned User (Automatically Captured from Logged-In User)
         [Required]
